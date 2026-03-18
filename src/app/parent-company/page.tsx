@@ -1,114 +1,109 @@
 "use client";
 
 import { Card } from "@/components/ui/Card";
-import { Building2, Users, GraduationCap, ArrowUpRight, ArrowDownRight, Activity } from "lucide-react";
+import { Building2, Users, GraduationCap, Activity, FileText, Send, Bell, Settings } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function ParentCompanyDashboard() {
-    const stats = [
-        { name: "Total Schools", value: "24", icon: Building2, change: "+3", trend: "up", color: "text-blue-600 dark:text-blue-400" },
-        { name: "Total Students", value: "14,231", icon: Users, change: "+12%", trend: "up", color: "text-indigo-600 dark:text-indigo-400" },
-        { name: "Active Teachers", value: "842", icon: GraduationCap, change: "+5", trend: "up", color: "text-purple-600 dark:text-purple-400" },
-        { name: "Overall Revenue", value: "$1.2M", icon: Activity, change: "-2%", trend: "down", color: "text-pink-600 dark:text-pink-400" },
+    const quickActions = [
+        { name: "New Report", icon: FileText, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/30" },
+        { name: "Send Notice", icon: Send, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-100 dark:bg-emerald-900/30" },
+        { name: "Alerts", icon: Bell, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-900/30" },
+        { name: "Settings", icon: Settings, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-100 dark:bg-purple-900/30" },
     ];
 
-    const recentActivity = [
-        { title: "New school 'Springfield High' onboarded", time: "2 hours ago", type: "success" },
-        { title: "Quarterly revenue report generated", time: "5 hours ago", type: "info" },
-        { title: "System maintenance completed", time: "1 day ago", type: "default" },
-        { title: "Subscription renewed for 'Oakridge Academy'", time: "2 days ago", type: "success" },
+    const stats = [
+        { name: "Total Schools", value: "24", icon: Building2 },
+        { name: "Total Students", value: "14,231", icon: Users },
+        { name: "Active Teachers", value: "842", icon: GraduationCap },
+        { name: "Overall Revenue", value: "$1.2M", icon: Activity },
     ];
 
     return (
-        <div className="space-y-8 pb-12">
+        <div className="space-y-8 pb-32">
             {/* Header */}
             <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col md:flex-row justify-between md:items-end gap-4"
+                className="flex flex-col gap-2 pt-4"
             >
-                <div>
-                    <h1 className="text-4xl sm:text-5xl font-normal tracking-tight text-foreground">
-                        Overview
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">Welcome back to the global dashboard.</p>
-                </div>
-                <div className="flex items-center gap-3">
-                    {/* Quick Action Buttons */}
-                    <button className="px-6 py-3 rounded-full bg-primary-600 hover:bg-primary-700 text-white font-medium transition-colors shadow-sm active:scale-95">
-                        Add Entity
-                    </button>
-                </div>
+                <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-foreground">
+                    Overview
+                </h1>
+                <p className="text-gray-600 dark:text-gray-400 text-lg">Your organization snapshot.</p>
             </motion.div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Quick Actions Grid (2x2 on Mobile, 4x1 on Desktop) */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="grid grid-cols-2 md:grid-cols-4 gap-4"
+            >
+                {quickActions.map((action, i) => {
+                    const Icon = action.icon;
+                    return (
+                        <div key={i} className="flex flex-col items-center justify-center p-4 bg-surface rounded-[24px] cursor-pointer hover:bg-surface-container transition-colors shadow-sm">
+                            <div className={`p-4 rounded-full mb-3 ${action.bg} ${action.color}`}>
+                                <Icon className="w-6 h-6" />
+                            </div>
+                            <span className="font-medium text-sm text-foreground">{action.name}</span>
+                        </div>
+                    );
+                })}
+            </motion.div>
+
+            {/* Stats Overview */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {stats.map((stat, i) => {
                     const Icon = stat.icon;
                     return (
                         <motion.div
                             key={stat.name}
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: i * 0.1 }}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 + (i * 0.05) }}
                         >
-                            <Card className="h-full flex flex-col justify-between p-6 hover:bg-surface-container transition-colors duration-300 group cursor-pointer shadow-sm">
-                                <div className="flex justify-between items-start">
-                                    <div className={`p-4 rounded-[20px] bg-surface-container dark:bg-black/20 ${stat.color} group-hover:scale-110 transition-transform duration-300`}>
-                                        <Icon className="w-7 h-7" />
-                                    </div>
-                                    <div className={`flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full ${stat.trend === "up" ? "text-emerald-700 bg-emerald-100 dark:text-emerald-300 dark:bg-emerald-900/30" : "text-rose-700 bg-rose-100 dark:text-rose-300 dark:bg-rose-900/30"
-                                        }`}>
-                                        {stat.trend === "up" ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                                        {stat.change}
-                                    </div>
-                                </div>
-                                <div className="mt-8">
-                                    <h3 className="text-3xl font-medium tracking-tight text-foreground mb-1">{stat.value}</h3>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">{stat.name}</p>
-                                </div>
+                            <Card className="flex flex-col p-5 shadow-sm">
+                                <Icon className="w-6 h-6 text-primary-600 opacity-80 mb-4" />
+                                <h3 className="text-2xl font-semibold tracking-tight text-foreground mb-1">{stat.value}</h3>
+                                <p className="text-sm text-gray-500 font-medium">{stat.name}</p>
                             </Card>
                         </motion.div>
                     );
                 })}
             </div>
 
-            {/* Main Content Area */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Charts/Main Data */}
-                <div className="lg:col-span-2">
-                    <Card className="h-[400px] flex flex-col p-6 shadow-sm">
-                        <h3 className="text-xl font-medium mb-6 tracking-tight">Growth Trajectory</h3>
-                        <div className="flex-1 rounded-[24px] bg-surface-container flex items-center justify-center">
-                            <p className="text-gray-600 dark:text-gray-400 font-medium">Chart visualization will be implemented here</p>
-                        </div>
-                    </Card>
-                </div>
+            {/* Finance Chart Section */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+            >
+                <Card className="flex flex-col p-6 shadow-sm min-h-[350px]">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-xl font-medium tracking-tight">Finance Overview</h3>
+                        <span className="px-3 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded-full text-xs font-bold uppercase tracking-wider">
+                            +12.4%
+                        </span>
+                    </div>
 
-                {/* Recent Activity */}
-                <div className="lg:col-span-1">
-                    <Card className="h-[400px] flex flex-col p-6 shadow-sm">
-                        <h3 className="text-xl font-medium mb-6 tracking-tight">Recent Activity</h3>
-                        <div className="flex-1 overflow-y-auto pr-2 space-y-4">
-                            {recentActivity.map((activity, i) => (
-                                <div key={i} className="flex gap-4 group">
-                                    <div className="flex flex-col items-center">
-                                        <div className={`w-3 h-3 rounded-full mt-1 ${activity.type === "success" ? "bg-emerald-500" :
-                                            activity.type === "info" ? "bg-blue-500" :
-                                                "bg-gray-400"
-                                            }`} />
-                                        {i !== recentActivity.length - 1 && <div className="w-px h-full bg-black/10 dark:bg-white/10 mt-2" />}
-                                    </div>
-                                    <div className="pb-5">
-                                        <p className="text-sm font-medium text-foreground leading-tight">{activity.title}</p>
-                                        <p className="text-xs text-gray-500 mt-1.5 font-medium">{activity.time}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </Card>
-                </div>
-            </div>
+                    {/* Mock Finance Chart Visualization */}
+                    <div className="flex-1 w-full bg-surface-container rounded-[24px] flex items-end p-4 gap-2 h-full overflow-hidden relative">
+                        {/* Fake bars for the chart */}
+                        {[30, 45, 25, 60, 40, 75, 55, 90, 65, 80, 50, 85].map((height, i) => (
+                            <div key={i} className="flex-1 flex flex-col justify-end group cursor-pointer h-full">
+                                <motion.div
+                                    initial={{ height: 0 }}
+                                    animate={{ height: `${height}%` }}
+                                    transition={{ duration: 1, delay: 0.5 + (i * 0.05), type: "spring" }}
+                                    className="w-full bg-primary-100 dark:bg-primary-900/30 rounded-t-lg group-hover:bg-primary-500 transition-colors"
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </Card>
+            </motion.div>
         </div>
     );
 }

@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 
-const outfit = Outfit({
-  variable: "--font-outfit",
+const DMSans = DM_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
 });
 
 export const metadata: Metadata = {
   title: "CampusDesk - Modern School ERP",
-  description: "A premium, glassmorphic School ERP system built with Next.js",
+  description: "A premium, Material You structured School ERP system built with Next.js",
 };
 
 export default function RootLayout({
@@ -19,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${outfit.variable} font-sans antialiased text-white`}>
+      <body className={`${DMSans.variable} font-sans antialiased text-foreground`}>
         {children}
       </body>
     </html>
