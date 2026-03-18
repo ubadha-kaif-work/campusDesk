@@ -5,9 +5,9 @@ import { Search as SearchIcon, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, Suspense } from "react";
 
-export default function SearchPage() {
+function SearchContent() {
     const searchParams = useSearchParams();
     const shouldFocus = searchParams.get('focus') === 'true';
     const inputRef = useRef<HTMLInputElement>(null);
@@ -35,7 +35,7 @@ export default function SearchPage() {
                         ref={inputRef}
                         placeholder="Search for schools, teachers, or reports..."
                         className="w-full bg-transparent text-lg text-foreground placeholder-gray-500 focus:outline-none py-2"
-                        autoFocus={!shouldFocus} // If focus=false, it still auto-focuses as a default search page behavior, or we respect the param entirely.
+                        autoFocus={!shouldFocus}
                     />
                 </div>
                 <div className="pr-4">
@@ -63,5 +63,13 @@ export default function SearchPage() {
                 </div>
             </div>
         </motion.div>
+    );
+}
+
+export default function SearchPage() {
+    return (
+        <Suspense fallback={<div className="p-8 text-center text-gray-500">Loading Search...</div>}>
+            <SearchContent />
+        </Suspense>
     );
 }
