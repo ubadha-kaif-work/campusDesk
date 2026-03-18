@@ -12,13 +12,10 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
         const CardContent = (
             <div
                 ref={ref}
-                className={`glass-card rounded-2xl p-8 relative overflow-hidden ${className}`}
+                className={`bg-surface rounded-[28px] p-6 text-foreground border border-black/5 dark:border-white/5 ${className}`}
                 {...props}
             >
-                {/* Subtle inner gradient lighting */}
-                <div className="absolute -top-32 -right-32 w-64 h-64 bg-primary-500/10 rounded-full blur-[80px]" />
-                <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-purple-500/10 rounded-full blur-[80px]" />
-
+                {/* No inner lighting gradients, keeping it clean and flat per Material You */}
                 <div className="relative z-10">
                     {children}
                 </div>
@@ -28,9 +25,9 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
         if (animate) {
             return (
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
                 >
                     {CardContent}
                 </motion.div>

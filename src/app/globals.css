@@ -3,9 +3,15 @@
 @theme {
   --color-primary-50: #eff6ff;
   --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
   --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  
+  --color-primary-600: #0b57d0;
+  /* Material standard blue */
+  --color-primary-700: #0842a0;
+
+  --color-surface: var(--surface);
+  --color-surface-container: var(--surface-container);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
@@ -13,45 +19,40 @@
 
 @layer base {
   :root {
-    --background: #f8fafc;
-    --foreground: #0f172a;
+    --background: #f0f4f9;
+    --foreground: #1f1f1f;
+    --surface: #ffffff;
+    --surface-container: #e8eaed;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --background: #0f172a;
-      --foreground: #f8fafc;
+      --background: #131314;
+      --foreground: #e3e3e3;
+      --surface: #1e1f20;
+      --surface-container: #282a2c;
     }
   }
 
   body {
     background-color: var(--background);
     color: var(--foreground);
-    /* Premium dark mesh gradient default for a modern look */
-    background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-                      radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
-                      radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
-    background-attachment: fixed;
     min-height: 100vh;
   }
 }
 
 @layer utilities {
+
+  /* Retain for compatibility with older code, but redirect to new aesthetic */
   .glass {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    background-color: var(--surface-container);
+    border-radius: 1.5rem;
   }
-  
+
   .glass-card {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
-    border-left: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+    background-color: var(--surface);
+    border-radius: 28px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    /* very soft shadow */
   }
 }
