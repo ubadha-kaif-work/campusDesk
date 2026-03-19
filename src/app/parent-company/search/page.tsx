@@ -1,20 +1,16 @@
 "use client";
 
 import { useState, useRef, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import { Search as SearchIcon, ArrowLeft, Landmark, FileText, UserCircle, MapPin, X, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Search as SearchIcon, ArrowLeft, Landmark, FileText, UserCircle, Users, BookOpen, Clock, Settings, Mic, X, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Card } from "@/components/ui/Card";
 
 function SearchContent() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const shouldFocus = searchParams.get('focus') === 'true';
     const inputRef = useRef<HTMLInputElement>(null);
     const [searchQuery, setSearchQuery] = useState("");
-    const [activeFilter, setActiveFilter] = useState("All");
-
-    const filters = ["All", "Institutions", "Reports", "Staff"];
 
     useEffect(() => {
         if (shouldFocus && inputRef.current) {
@@ -23,134 +19,149 @@ function SearchContent() {
         }
     }, [shouldFocus]);
 
-    const results = [
-        { id: 1, type: "Institution", title: "Springfield High School", subtitle: "SHS-01 • Springfield", icon: Landmark, color: "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/40" },
-        { id: 4, type: "Institution", title: "Shelbyville Elementary", subtitle: "SBE-02 • Shelbyville", icon: Landmark, color: "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/40" },
-        { id: 2, type: "Report", title: "Q3 2026 Academic Performance", subtitle: "Generated Oct 12, 2026", icon: FileText, color: "text-blue-600 bg-blue-100 dark:bg-blue-900/40" },
-        { id: 3, type: "Staff", title: "Principal Seymour Skinner", subtitle: "Administration • Springfield High", icon: UserCircle, color: "text-purple-600 bg-purple-100 dark:bg-purple-900/40" },
+    const categories = [
+        { id: "institutions", title: "Institutions", icon: Landmark, color: "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400" },
+        { id: "staff", title: "Staff", icon: UserCircle, color: "bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400" },
+        { id: "students", title: "Students", icon: Users, color: "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400" },
+        { id: "reports", title: "Reports", icon: FileText, color: "bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400" },
+        { id: "courses", title: "Courses", icon: BookOpen, color: "bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400" },
+        { id: "settings", title: "Settings", icon: Settings, color: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400" },
     ];
 
-    const filteredResults = activeFilter === "All"
-        ? results
-        : results.filter(r => r.type === activeFilter);
+    const recentSearches = ["Attendance Logs", "Springfield High", "Dean Skinner", "Finance Report Q3"];
 
-    // Naively filter mock titles by actual query input
+    // Mock search results
+    const mockResults = [
+        { id: 1, title: "Springfield High School", type: "Institution", icon: Landmark },
+        { id: 4, title: "Shelbyville Elementary", type: "Institution", icon: Landmark },
+        { id: 2, title: "Principal Seymour Skinner", type: "Staff", icon: UserCircle },
+        { id: 3, title: "Q3 Finance Report", type: "Report", icon: FileText },
+    ];
+
     const finalResults = searchQuery.trim().length > 0
-        ? filteredResults.filter(r => r.title.toLowerCase().includes(searchQuery.toLowerCase()))
-        : filteredResults;
+        ? mockResults.filter(r => r.title.toLowerCase().includes(searchQuery.toLowerCase().trim()) || r.type.toLowerCase().includes(searchQuery.toLowerCase().trim()))
+        : [];
 
     return (
-        <div className="space-y-6 pb-32 pt-2 max-w-4xl mx-auto">
-            {/* Focal Hero Search Element dynamically pinning to the window top */}
-            <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="sticky top-4 z-40"
-            >
-                <div className="flex items-center gap-3 bg-surface/80 dark:bg-surface-container/80 backdrop-blur-xl p-3 pr-4 rounded-full shadow-lg border border-black/5 dark:border-white/10 ring-1 ring-black/5 transition-all">
-                    <Link href="/parent-company" className="p-3 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors shrink-0 group">
-                        <ArrowLeft className="w-6 h-6 text-gray-500 group-hover:text-foreground transition-colors" />
-                    </Link>
-                    <div className="flex-1 relative flex items-center pr-2">
-                        <input
-                            ref={inputRef}
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search institutions, reports, staff..."
-                            className="w-full bg-transparent text-xl font-medium tracking-tight text-foreground placeholder-gray-400 focus:outline-none py-2"
-                            autoFocus={!shouldFocus}
-                        />
-                        <AnimatePresence>
-                            {searchQuery && (
-                                <motion.button
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.8 }}
-                                    onClick={() => setSearchQuery("")}
-                                    className="absolute right-0 p-2 rounded-full text-gray-400 hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-                                >
-                                    <X className="w-5 h-5 text-current" />
-                                </motion.button>
-                            )}
-                        </AnimatePresence>
-                    </div>
-                    <div className="shrink-0">
-                        <div className="p-3 bg-primary-600 text-white rounded-full shadow-md cursor-pointer hover:bg-primary-700 hover:scale-105 transition-all duration-200">
-                            <SearchIcon className="w-5 h-5 text-current" />
+        <div className="min-h-[100dvh] pb-32 bg-background flex flex-col">
+            {/* Google Photos Abstract Floating Pill */}
+            <div className="sticky top-0 z-50 px-4 pt-4 pb-2 bg-background/90 backdrop-blur-xl">
+                <div className="max-w-3xl mx-auto flex items-center bg-surface-container hover:bg-black/5 dark:hover:bg-white/5 transition-colors p-2 rounded-full shadow-sm border border-black/5 dark:border-white/5">
+                    <button onClick={() => router.back()} className="p-2.5 rounded-full text-foreground/70 hover:bg-black/5 dark:hover:bg-white/10 transition-colors shrink-0">
+                        <ArrowLeft className="w-6 h-6" />
+                    </button>
+                    <input
+                        ref={inputRef}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search your workspace"
+                        className="flex-1 bg-transparent text-[17px] text-foreground placeholder-foreground/50 focus:outline-none px-2"
+                        autoFocus={!shouldFocus}
+                    />
+                    <div className="flex items-center gap-1 pr-1 shrink-0">
+                        {searchQuery ? (
+                            <button onClick={() => setSearchQuery("")} className="p-2.5 rounded-full text-foreground/70 hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+                                <X className="w-5 h-5" />
+                            </button>
+                        ) : (
+                            <button className="p-2.5 rounded-full text-foreground/70 hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+                                <Mic className="w-5 h-5" />
+                            </button>
+                        )}
+                        <div className="w-9 h-9 rounded-full bg-primary-600 text-white flex items-center justify-center shadow-sm ml-1 font-medium font-sans border border-black/10">
+                            A
                         </div>
                     </div>
                 </div>
+            </div>
 
-                {/* Horizontal Quick Filter Slider mapping Categories */}
-                <div className="flex overflow-x-auto gap-2 py-4 px-2 mt-2 no-scrollbar">
-                    {filters.map((filter) => (
-                        <button
-                            key={filter}
-                            onClick={() => setActiveFilter(filter)}
-                            className={`px-5 py-2.5 rounded-full text-sm font-bold tracking-wide uppercase whitespace-nowrap transition-all shadow-sm ${activeFilter === filter
-                                    ? "bg-foreground text-background"
-                                    : "bg-surface-container text-gray-600 dark:text-gray-400 hover:bg-black/10 dark:hover:bg-white/10"
-                                }`}
+            <div className="flex-1 max-w-3xl mx-auto w-full px-4 overflow-hidden pt-4">
+                <AnimatePresence mode="popLayout">
+                    {searchQuery.trim().length === 0 ? (
+                        <motion.div
+                            key="abstract-grid"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.2 }}
+                            className="space-y-8"
                         >
-                            {filter}
-                        </button>
-                    ))}
-                </div>
-            </motion.div>
+                            {/* Horizontal Recent Queries Slider */}
+                            <div className="flex overflow-x-auto gap-2 pb-2 no-scrollbar">
+                                {recentSearches.map((term, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => {
+                                            setSearchQuery(term);
+                                            inputRef.current?.focus();
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 rounded-full border border-black/10 dark:border-white/10 text-sm font-medium text-foreground hover:bg-surface-container hover:shadow-sm whitespace-nowrap transition-all"
+                                    >
+                                        <Clock className="w-4 h-4 text-gray-400" />
+                                        {term}
+                                    </button>
+                                ))}
+                            </div>
 
-            {/* Sub-Render Frame displaying target payload matches dynamically */}
-            <div className="px-2">
-                <h3 className="text-gray-500 font-bold mb-4 ml-1 text-xs uppercase tracking-widest">
-                    {searchQuery ? `Searching for "${searchQuery}"` : "Suggested Results"}
-                </h3>
-
-                <div className="grid grid-cols-1 gap-4">
-                    <AnimatePresence mode="popLayout">
-                        {finalResults.map((result, i) => {
-                            const Icon = result.icon;
-                            return (
-                                <motion.div
-                                    layout
-                                    initial={{ opacity: 0, scale: 0.98, y: 10 }}
-                                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.98 }}
-                                    transition={{ delay: i * 0.05 }}
-                                    key={result.id}
-                                >
-                                    <Card className="p-4 flex items-center justify-between gap-4 cursor-pointer group hover:bg-surface-container transition-colors shadow-sm border border-black/5 dark:border-white/10 overflow-hidden">
-                                        <div className="flex items-center gap-5 overflow-hidden w-full">
-                                            <div className={`p-4 rounded-[20px] shrink-0 transition-transform duration-300 group-hover:scale-110 ${result.color}`}>
-                                                <Icon className="w-6 h-6 text-current" />
-                                            </div>
-                                            <div className="min-w-0 flex-1">
-                                                <h4 className="text-xl font-medium text-foreground truncate group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
-                                                    {result.title}
-                                                </h4>
-                                                <div className="flex items-center gap-2 mt-1">
-                                                    <span className="text-sm font-medium text-gray-500 truncate min-w-0 max-w-[60%]">{result.subtitle}</span>
-                                                    <span className="text-gray-300 dark:text-gray-600 shrink-0">•</span>
-                                                    <span className="text-xs font-bold uppercase tracking-wider text-gray-400 shrink-0">{result.type}</span>
-                                                </div>
-                                            </div>
+                            {/* Massive Categorical Grid (Google Photos style constraint) */}
+                            <div>
+                                <h2 className="text-[19px] font-medium text-foreground mb-4 pl-1">Categories</h2>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    {categories.map((cat, i) => {
+                                        const Icon = cat.icon;
+                                        return (
+                                            <motion.button
+                                                key={cat.id}
+                                                whileHover={{ scale: 0.98 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={() => {
+                                                    setSearchQuery(cat.title);
+                                                    inputRef.current?.focus();
+                                                }}
+                                                className={`aspect-square rounded-[24px] ${cat.color} flex flex-col items-center justify-center gap-3 p-4 shadow-sm border border-black/5 transition-transform overflow-hidden`}
+                                            >
+                                                <Icon className="w-10 h-10" strokeWidth={1.5} />
+                                                <span className="font-semibold tracking-tight text-sm">{cat.title}</span>
+                                            </motion.button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="search-results"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            transition={{ duration: 0.2 }}
+                            className="space-y-2 mt-2"
+                        >
+                            {finalResults.map((result) => {
+                                const Icon = result.icon;
+                                return (
+                                    <div key={result.id} className="flex items-center gap-4 p-3 rounded-2xl hover:bg-surface-container transition-colors cursor-pointer group">
+                                        <div className="w-12 h-12 rounded-full bg-surface-container group-hover:bg-white dark:group-hover:bg-black/30 flex items-center justify-center shrink-0 transition-colors">
+                                            <Icon className="w-5 h-5 text-gray-500 group-hover:text-primary-600 transition-colors" />
                                         </div>
-                                        <ArrowLeft className="w-5 h-5 text-gray-300 dark:text-gray-600 rotate-135 opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0 shrink-0" />
-                                    </Card>
-                                </motion.div>
-                            );
-                        })}
-                    </AnimatePresence>
-                </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="text-base font-medium text-foreground truncate">{result.title}</h4>
+                                            <p className="text-sm text-gray-500 truncate">{result.type}</p>
+                                        </div>
+                                    </div>
+                                );
+                            })}
 
-                {finalResults.length === 0 && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20 px-4">
-                        <div className="mx-auto w-24 h-24 bg-surface-container rounded-full flex items-center justify-center mb-6">
-                            <SearchIcon className="w-10 h-10 text-gray-400" />
-                        </div>
-                        <h3 className="text-xl font-medium text-foreground mb-2">No exact matches found</h3>
-                        <p className="text-gray-500">Try adjusting your filters or refining your phrase.</p>
-                    </motion.div>
-                )}
+                            {finalResults.length === 0 && (
+                                <div className="text-center py-20">
+                                    <SearchIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                                    <h3 className="text-lg font-medium text-foreground">No matches found</h3>
+                                    <p className="text-gray-500 text-sm mt-1">Try searching for something else</p>
+                                </div>
+                            )}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );

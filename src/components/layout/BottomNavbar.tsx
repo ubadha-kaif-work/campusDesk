@@ -17,8 +17,7 @@ export function BottomNavbar() {
     ];
 
     const handleSearchClick = () => {
-        // Immediately route and trigger input focus on single click
-        router.push("/parent-company/search?focus=true");
+        router.push("/parent-company/search");
     };
 
     return (
