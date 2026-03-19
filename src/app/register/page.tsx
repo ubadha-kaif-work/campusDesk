@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Building2, User, KeyRound, Mail, Loader2 } from 'lucide-react';
+import { Building2, KeyRound, Mail, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
@@ -11,13 +11,11 @@ import { useRouter } from 'next/navigation';
 
 import { db } from "@/lib/firebase/config";
 import { collection, doc, setDoc } from "firebase/firestore";
-// Utilizing dynamic modular Auth imports seamlessly mapping across Next client scopes
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 export default function RegisterPage() {
     const router = useRouter();
     const [companyName, setCompanyName] = useState('');
-    const [adminName, setAdminName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -31,14 +29,13 @@ export default function RegisterPage() {
         try {
             const auth = getAuth();
 
-            // 1. Establish the native User Profile completely locked to Firebase Authentication
+            // 1. Establish the native User Profile
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // 2. Build the Document Reference matching the parent company traits to the assigned UUID securely inside Firestore
+            // 2. Build Document Reference mapped specifically tracking Company properties
             await setDoc(doc(db, "companies", user.uid), {
                 companyName,
-                adminName,
                 email,
                 createdAt: new Date().toISOString()
             });
@@ -47,7 +44,6 @@ export default function RegisterPage() {
             router.push('/parent-company');
         } catch (err: any) {
             console.error("Registration error:", err);
-            // Formats obscure Firebase auth errors (e.g., 'auth/email-already-in-use') securely to the client
             setError(err.message || 'Failed to create organization. Please try again.');
         } finally {
             setIsLoading(false);
@@ -75,7 +71,7 @@ export default function RegisterPage() {
                 </motion.div>
 
                 <Card animate className="w-full shadow-sm relative overflow-visible">
-                    {/* Error Banner Injection handling duplicate IDs or simple bad formats */}
+                    {/* Error Banner Injection */}
                     {error && (
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="absolute -top-14 left-0 right-0 bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 border border-red-200 dark:border-red-900/50 rounded-[16px] p-3 text-sm text-center font-bold tracking-tight shadow-md z-10">
                             {error}
@@ -107,15 +103,6 @@ export default function RegisterPage() {
                             </div>
 
                             <div className="space-y-4">
-                                <Input
-                                    label="Admin Full Name"
-                                    placeholder="John Doe"
-                                    icon={<User className="w-5 h-5 text-current" />}
-                                    value={adminName}
-                                    onChange={(e) => setAdminName(e.target.value)}
-                                    required
-                                />
-
                                 <Input
                                     label="Secure Email Address"
                                     type="email"

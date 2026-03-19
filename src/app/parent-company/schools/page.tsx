@@ -14,7 +14,6 @@ interface Institution {
     name: string;
     code: string;
     location: string;
-    principal: string; // Database label retained for backwards compatibility, rendered conditionally via UI
     students: number;
     staffCount?: number;
     departmentCount?: number;
@@ -29,7 +28,7 @@ export default function InstitutionsPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState<Omit<Institution, 'id'>>({
-        name: "", code: "", location: "", principal: "",
+        name: "", code: "", location: "",
         students: 0, staffCount: 0, departmentCount: 0, type: "School"
     });
 
@@ -54,7 +53,7 @@ export default function InstitutionsPage() {
 
     const handleOpenAdd = () => {
         setFormData({
-            name: "", code: "", location: "", principal: "",
+            name: "", code: "", location: "",
             students: 0, staffCount: 0, departmentCount: 0, type: "School"
         });
         setEditingId(null);
@@ -63,7 +62,7 @@ export default function InstitutionsPage() {
 
     const handleOpenEdit = (inst: Institution) => {
         setFormData({
-            name: inst.name, code: inst.code, location: inst.location, principal: inst.principal,
+            name: inst.name, code: inst.code, location: inst.location,
             students: inst.students, staffCount: inst.staffCount || 0, departmentCount: inst.departmentCount || 0, type: inst.type || "School"
         });
         setEditingId(inst.id);
@@ -91,7 +90,6 @@ export default function InstitutionsPage() {
     };
 
     // Helper functions for conditionally rendered terminology
-    const getHeadLabel = (type?: string) => type === 'University' ? 'Vice-Chancellor' : type === 'College' ? 'Dean' : 'Principal';
     const getStaffLabel = (type?: string) => type === 'School' ? 'Teachers' : 'Professors';
     const getDeptLabel = (type?: string) => type === 'School' ? 'Departments' : 'Faculties';
 
@@ -186,11 +184,6 @@ export default function InstitutionsPage() {
                                         </div>
                                     </div>
 
-                                    <div className="pt-3 mt-3 border-t border-black/5 dark:border-white/5">
-                                        <p className="text-sm text-gray-500">
-                                            {getHeadLabel(inst.type)}: <span className="font-medium text-foreground">{inst.principal}</span>
-                                        </p>
-                                    </div>
                                 </div>
                             </Card>
                         </motion.div>
@@ -270,13 +263,6 @@ export default function InstitutionsPage() {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <Input
-                                        label={`${getHeadLabel(formData.type)} Name`}
-                                        required
-                                        disabled={isSaving}
-                                        value={formData.principal}
-                                        onChange={e => setFormData({ ...formData, principal: e.target.value })}
-                                    />
-                                    <Input
                                         label={`Total ${getDeptLabel(formData.type)}`}
                                         type="number"
                                         required
@@ -284,9 +270,6 @@ export default function InstitutionsPage() {
                                         value={formData.departmentCount}
                                         onChange={e => setFormData({ ...formData, departmentCount: parseInt(e.target.value) || 0 })}
                                     />
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <Input
                                         label={`Active ${getStaffLabel(formData.type)}`}
                                         type="number"
@@ -295,6 +278,10 @@ export default function InstitutionsPage() {
                                         value={formData.staffCount}
                                         onChange={e => setFormData({ ...formData, staffCount: parseInt(e.target.value) || 0 })}
                                     />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                                     <Input
                                         label="Total Students"
                                         type="number"
