@@ -1,18 +1,39 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Home, Landmark, PieChart } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Home, Landmark, PieChart, Search } from "lucide-react";
 import { motion } from "framer-motion";
+import { useRef } from "react";
 
 export function BottomNavbar() {
     const pathname = usePathname();
+    const router = useRouter();
+    const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const navItems = [
         { name: "Home", href: "/parent-company", icon: Home },
         { name: "Institutions", href: "/parent-company/schools", icon: Landmark },
         { name: "Reports", href: "/parent-company/reports", icon: PieChart },
     ];
+
+    const handleSearchClick = () => {
+        // Clear any existing timeout precisely so we don't route twice
+        if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+
+        // Delay single click processing by 250ms to check if a double click follows it
+        clickTimeoutRef.current = setTimeout(() => {
+            router.push("/parent-company/search");
+        }, 250);
+    };
+
+    const handleSearchDoubleClick = () => {
+        // It's a double click - cancel the single click timeout entirely
+        if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+
+        // Route with focus parameter instantly
+        router.push("/parent-company/search?focus=true");
+    };
 
     return (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
@@ -48,6 +69,16 @@ export function BottomNavbar() {
                         </Link>
                     );
                 })}
+            </div>
+
+            {/* Search FAB with single/double click handling and strong Frosted Glass */}
+            <div
+                onClick={handleSearchClick}
+                onDoubleClick={handleSearchDoubleClick}
+                className="bg-surface/40 dark:bg-black/40 backdrop-blur-[24px] hover:bg-surface/70 p-4 rounded-full shadow-lg border border-black/5 dark:border-white/10 cursor-pointer transition-colors text-gray-800 dark:text-gray-200 hover:text-foreground"
+                title="Single click to open, double click to auto-focus"
+            >
+                <Search className="w-5 h-5 text-current" />
             </div>
         </div>
     );
