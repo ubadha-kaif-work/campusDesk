@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Plus, Edit2, MapPin, Users, Landmark, X, Loader2, BookOpen, UserCircle } from "lucide-react";
+import { Plus, Edit2, MapPin, Landmark, X, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { db } from "@/lib/firebase/config";
 import { collection, getDocs, addDoc, updateDoc, doc } from "firebase/firestore";
@@ -14,9 +14,6 @@ interface Institution {
     name: string;
     code: string;
     location: string;
-    students: number;
-    staffCount?: number;
-    departmentCount?: number;
     type?: "School" | "College" | "University";
 }
 
@@ -28,8 +25,7 @@ export default function InstitutionsPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState<Omit<Institution, 'id'>>({
-        name: "", code: "", location: "",
-        students: 0, staffCount: 0, departmentCount: 0, type: "School"
+        name: "", code: "", location: "", type: "School"
     });
 
     useEffect(() => {
@@ -53,8 +49,7 @@ export default function InstitutionsPage() {
 
     const handleOpenAdd = () => {
         setFormData({
-            name: "", code: "", location: "",
-            students: 0, staffCount: 0, departmentCount: 0, type: "School"
+            name: "", code: "", location: "", type: "School"
         });
         setEditingId(null);
         setIsFormOpen(true);
@@ -62,8 +57,7 @@ export default function InstitutionsPage() {
 
     const handleOpenEdit = (inst: Institution) => {
         setFormData({
-            name: inst.name, code: inst.code, location: inst.location,
-            students: inst.students, staffCount: inst.staffCount || 0, departmentCount: inst.departmentCount || 0, type: inst.type || "School"
+            name: inst.name, code: inst.code, location: inst.location, type: inst.type || "School"
         });
         setEditingId(inst.id);
         setIsFormOpen(true);
@@ -88,10 +82,6 @@ export default function InstitutionsPage() {
             setIsSaving(false);
         }
     };
-
-    // Helper functions for conditionally rendered terminology
-    const getStaffLabel = (type?: string) => type === 'School' ? 'Teachers' : 'Professors';
-    const getDeptLabel = (type?: string) => type === 'School' ? 'Departments' : 'Faculties';
 
     const getTypeStyles = (type?: string) => {
         switch (type) {
@@ -146,44 +136,17 @@ export default function InstitutionsPage() {
                                     </div>
                                 </div>
 
-                                {/* Dynamic Tier/Type Badge */}
                                 <div className="mb-4">
                                     <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full shadow-sm ${getTypeStyles(inst.type)}`}>
                                         {inst.type || "School"}
                                     </span>
                                 </div>
 
-                                <div className="space-y-3">
-                                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                        <MapPin className="w-4 h-4 text-current opacity-70" />
+                                <div className="space-y-3 pb-2 border-t border-black/5 dark:border-white/5 pt-4 mt-2">
+                                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 font-medium tracking-wide">
+                                        <MapPin className="w-4 h-4 text-primary-600 dark:text-primary-400" />
                                         <span>{inst.location}</span>
                                     </div>
-
-                                    {/* Sub-Metrics Grid */}
-                                    <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-black/5 dark:border-white/5">
-                                        <div className="flex flex-col gap-1">
-                                            <span className="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-                                                <Users className="w-3.5 h-3.5" /> Students
-                                            </span>
-                                            <span className="font-medium text-foreground text-sm">{inst.students.toLocaleString()}</span>
-                                        </div>
-                                        <div className="flex flex-col gap-1">
-                                            <span className="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-                                                <UserCircle className="w-3.5 h-3.5" /> {getStaffLabel(inst.type)}
-                                            </span>
-                                            <span className="font-medium text-foreground text-sm">{inst.staffCount || 0}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 gap-2 pt-2">
-                                        <div className="flex flex-col gap-1">
-                                            <span className="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-                                                <BookOpen className="w-3.5 h-3.5" /> {getDeptLabel(inst.type)}
-                                            </span>
-                                            <span className="font-medium text-foreground text-sm">{inst.departmentCount || 0}</span>
-                                        </div>
-                                    </div>
-
                                 </div>
                             </Card>
                         </motion.div>
@@ -215,7 +178,6 @@ export default function InstitutionsPage() {
                             </div>
                             <form onSubmit={handleSave} className="p-6 space-y-6">
 
-                                {/* Institution Type Interactive Segmented Selector */}
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium text-foreground ml-2">Institution Tier</label>
                                     <div className="flex gap-2 p-1 bg-surface-container rounded-full">
@@ -260,37 +222,6 @@ export default function InstitutionsPage() {
                                     value={formData.location}
                                     onChange={e => setFormData({ ...formData, location: e.target.value })}
                                 />
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <Input
-                                        label={`Total ${getDeptLabel(formData.type)}`}
-                                        type="number"
-                                        required
-                                        disabled={isSaving}
-                                        value={formData.departmentCount}
-                                        onChange={e => setFormData({ ...formData, departmentCount: parseInt(e.target.value) || 0 })}
-                                    />
-                                    <Input
-                                        label={`Active ${getStaffLabel(formData.type)}`}
-                                        type="number"
-                                        required
-                                        disabled={isSaving}
-                                        value={formData.staffCount}
-                                        onChange={e => setFormData({ ...formData, staffCount: parseInt(e.target.value) || 0 })}
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                                    <Input
-                                        label="Total Students"
-                                        type="number"
-                                        required
-                                        disabled={isSaving}
-                                        value={formData.students}
-                                        onChange={e => setFormData({ ...formData, students: parseInt(e.target.value) || 0 })}
-                                    />
-                                </div>
 
                                 <div className="pt-6 border-t border-black/5 dark:border-white/5 flex justify-end gap-3">
                                     <Button type="button" variant="secondary" disabled={isSaving} onClick={() => setIsFormOpen(false)}>Cancel</Button>
