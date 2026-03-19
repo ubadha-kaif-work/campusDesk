@@ -49,8 +49,10 @@ export function BottomNavbar() {
                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                 />
                             )}
-                            {/* Added Icon back, forced it to inherit color with text-current */}
-                            <Icon className="w-5 h-5 relative z-10 text-current transition-colors" />
+                            {/* Added Icon conditionally shown only when active */}
+                            {isActive && (
+                                <Icon className="w-5 h-5 relative z-10 text-current transition-all duration-200" />
+                            )}
                             <span className="relative z-10 transition-colors duration-200">
                                 {item.name}
                             </span>

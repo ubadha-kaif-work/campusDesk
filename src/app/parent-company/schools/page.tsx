@@ -1,22 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Plus, Edit2, MapPin, Users, Building, X } from "lucide-react";
+import { Plus, Edit2, MapPin, Users, Building, X, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { db } from "@/lib/firebase/config";
+import { collection, getDocs, addDoc, updateDoc, doc } from "firebase/firestore";
+
+interface School {
+    id: string;
+    name: string;
+    code: string;
+    location: string;
+    principal: string;
+    students: number;
+}
 
 export default function SchoolsPage() {
-    const [schools, setSchools] = useState([
-        { id: "1", name: "Springfield High School", code: "SHS-01", location: "Springfield", principal: "Seymour Skinner", students: 1205 },
-        { id: "2", name: "Shelbyville Elementary", code: "SHE-02", location: "Shelbyville", principal: "Chalmers", students: 840 },
-        { id: "3", name: "Oakridge Academy", code: "OAK-03", location: "Oakridge", principal: "Eleanor Vance", students: 650 },
-    ]);
+    const [schools, setSchools] = useState<School[]>([]);
+    const [loading, setLoading] = useState(true);
 
     const [isFormOpen, setIsFormOpen] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState({ name: "", code: "", location: "", principal: "", students: 0 });
+
+    useEffect(() => {
+        fetchSchools();
+    }, []);
+
+    const fetchSchools = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(db, "schools"));
+            const schoolsData = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            })) as School[];
+            setSchools(schoolsData);
+        } catch (error) {
+            console.error("Error fetching schools:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleOpenAdd = () => {
         setFormData({ name: "", code: "", location: "", principal: "", students: 0 });
@@ -24,20 +52,30 @@ export default function SchoolsPage() {
         setIsFormOpen(true);
     };
 
-    const handleOpenEdit = (school: any) => {
+    const handleOpenEdit = (school: School) => {
         setFormData({ ...school });
         setEditingId(school.id);
         setIsFormOpen(true);
     };
 
-    const handleSave = (e: React.FormEvent) => {
+    const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (editingId) {
-            setSchools(schools.map(s => s.id === editingId ? { ...formData, id: editingId } : s));
-        } else {
-            setSchools([...schools, { ...formData, id: Date.now().toString() }]);
+        setIsSaving(true);
+        try {
+            if (editingId) {
+                const schoolRef = doc(db, "schools", editingId);
+                await updateDoc(schoolRef, formData);
+                setSchools(schools.map(s => s.id === editingId ? { ...formData, id: editingId } : s));
+            } else {
+                const docRef = await addDoc(collection(db, "schools"), formData);
+                setSchools([...schools, { ...formData, id: docRef.id }]);
+            }
+            setIsFormOpen(false);
+        } catch (error) {
+            console.error("Error saving school:", error);
+        } finally {
+            setIsSaving(false);
         }
-        setIsFormOpen(false);
     };
 
     return (
@@ -54,44 +92,54 @@ export default function SchoolsPage() {
                 </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {schools.map(school => (
-                    <motion.div key={school.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                        <Card className="flex flex-col p-6 shadow-sm relative group">
-                            <button
-                                onClick={() => handleOpenEdit(school)}
-                                className="absolute top-4 right-4 p-2 rounded-full bg-surface-container opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-primary-100 text-primary-600 dark:hover:bg-primary-900/40"
-                            >
-                                <Edit2 className="w-4 h-4 text-current" />
-                            </button>
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="p-3 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-2xl">
-                                    <Building className="w-6 h-6 text-current" />
+            {loading ? (
+                <div className="flex justify-center p-12">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+                </div>
+            ) : schools.length === 0 ? (
+                <div className="text-center p-12 bg-surface-container rounded-[24px]">
+                    <p className="text-gray-500 font-medium">No school branches found. Add one to get started.</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {schools.map(school => (
+                        <motion.div key={school.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                            <Card className="flex flex-col p-6 shadow-sm relative group cursor-pointer hover:bg-surface-container transition-colors border border-black/5 dark:border-white/10">
+                                <button
+                                    onClick={() => handleOpenEdit(school)}
+                                    className="absolute top-4 right-4 p-2 rounded-full bg-surface-container opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-primary-100 text-primary-600 dark:hover:bg-primary-900/40"
+                                >
+                                    <Edit2 className="w-4 h-4 text-current" />
+                                </button>
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="p-3 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-2xl">
+                                        <Building className="w-6 h-6 text-current" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-medium text-lg text-foreground leading-tight">{school.name}</h3>
+                                        <p className="text-sm font-medium text-gray-500">{school.code}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className="font-medium text-lg text-foreground leading-tight">{school.name}</h3>
-                                    <p className="text-sm font-medium text-gray-500">{school.code}</p>
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <MapPin className="w-4 h-4 text-current opacity-70" />
+                                        <span>{school.location}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <Users className="w-4 h-4 text-current opacity-70" />
+                                        <span>{school.students.toLocaleString()} Students</span>
+                                    </div>
+                                    <div className="pt-3 mt-3 border-t border-black/5 dark:border-white/5">
+                                        <p className="text-sm text-gray-500">
+                                            Principal: <span className="font-medium text-foreground">{school.principal}</span>
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                    <MapPin className="w-4 h-4 text-current opacity-70" />
-                                    <span>{school.location}</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                    <Users className="w-4 h-4 text-current opacity-70" />
-                                    <span>{school.students.toLocaleString()} Students</span>
-                                </div>
-                                <div className="pt-3 mt-3 border-t border-black/5 dark:border-white/5">
-                                    <p className="text-sm text-gray-500">
-                                        Principal: <span className="font-medium text-foreground">{school.principal}</span>
-                                    </p>
-                                </div>
-                            </div>
-                        </Card>
-                    </motion.div>
-                ))}
-            </div>
+                            </Card>
+                        </motion.div>
+                    ))}
+                </div>
+            )}
 
             <AnimatePresence>
                 {isFormOpen && (
@@ -101,7 +149,7 @@ export default function SchoolsPage() {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                            onClick={() => setIsFormOpen(false)}
+                            onClick={() => !isSaving && setIsFormOpen(false)}
                         />
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -111,7 +159,7 @@ export default function SchoolsPage() {
                         >
                             <div className="flex justify-between items-center p-6 border-b border-black/5 dark:border-white/5 bg-surface-container/50">
                                 <h2 className="text-2xl font-medium text-foreground">{editingId ? "Edit Branch" : "Add New Branch"}</h2>
-                                <button onClick={() => setIsFormOpen(false)} className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-foreground">
+                                <button disabled={isSaving} onClick={() => setIsFormOpen(false)} className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-foreground disabled:opacity-50">
                                     <X className="w-5 h-5 text-current" />
                                 </button>
                             </div>
@@ -120,12 +168,14 @@ export default function SchoolsPage() {
                                     <Input
                                         label="School Name"
                                         required
+                                        disabled={isSaving}
                                         value={formData.name}
                                         onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     />
                                     <Input
                                         label="Branch Code"
                                         required
+                                        disabled={isSaving}
                                         value={formData.code}
                                         onChange={e => setFormData({ ...formData, code: e.target.value })}
                                     />
@@ -133,6 +183,7 @@ export default function SchoolsPage() {
                                 <Input
                                     label="Location"
                                     required
+                                    disabled={isSaving}
                                     icon={<MapPin className="w-5 h-5 text-current" />}
                                     value={formData.location}
                                     onChange={e => setFormData({ ...formData, location: e.target.value })}
@@ -141,6 +192,7 @@ export default function SchoolsPage() {
                                     <Input
                                         label="Principal Name"
                                         required
+                                        disabled={isSaving}
                                         value={formData.principal}
                                         onChange={e => setFormData({ ...formData, principal: e.target.value })}
                                     />
@@ -148,13 +200,14 @@ export default function SchoolsPage() {
                                         label="Total Students"
                                         type="number"
                                         required
+                                        disabled={isSaving}
                                         value={formData.students}
                                         onChange={e => setFormData({ ...formData, students: parseInt(e.target.value) || 0 })}
                                     />
                                 </div>
                                 <div className="pt-4 flex justify-end gap-3">
-                                    <Button type="button" variant="secondary" onClick={() => setIsFormOpen(false)}>Cancel</Button>
-                                    <Button type="submit">{editingId ? "Save Changes" : "Create Branch"}</Button>
+                                    <Button type="button" variant="secondary" disabled={isSaving} onClick={() => setIsFormOpen(false)}>Cancel</Button>
+                                    <Button type="submit" isLoading={isSaving}>{editingId ? "Save Changes" : "Create Branch"}</Button>
                                 </div>
                             </form>
                         </motion.div>
