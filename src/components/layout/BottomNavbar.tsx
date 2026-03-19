@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, School, PieChart, Search } from "lucide-react";
+import { Home, Landmark, PieChart, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRef } from "react";
 
@@ -13,7 +13,7 @@ export function BottomNavbar() {
 
     const navItems = [
         { name: "Home", href: "/parent-company", icon: Home },
-        { name: "Schools", href: "/parent-company/schools", icon: School },
+        { name: "Institutions", href: "/parent-company/schools", icon: Landmark },
         { name: "Reports", href: "/parent-company/reports", icon: PieChart },
     ];
 
