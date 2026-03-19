@@ -4,10 +4,12 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Home, School, PieChart, Search } from "lucide-react";
 import { motion } from "framer-motion";
+import { useRef } from "react";
 
 export function BottomNavbar() {
     const pathname = usePathname();
     const router = useRouter();
+    const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const navItems = [
         { name: "Home", href: "/parent-company", icon: Home },
@@ -16,10 +18,20 @@ export function BottomNavbar() {
     ];
 
     const handleSearchClick = () => {
-        router.push("/parent-company/search");
+        // Clear any existing timeout precisely so we don't route twice
+        if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+
+        // Delay single click processing by 250ms to check if a double click follows it
+        clickTimeoutRef.current = setTimeout(() => {
+            router.push("/parent-company/search");
+        }, 250);
     };
 
     const handleSearchDoubleClick = () => {
+        // It's a double click - cancel the single click timeout entirely
+        if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+
+        // Route with focus parameter instantly
         router.push("/parent-company/search?focus=true");
     };
 
@@ -49,10 +61,8 @@ export function BottomNavbar() {
                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                 />
                             )}
-                            {/* Added Icon conditionally shown only when active */}
-                            {isActive && (
-                                <Icon className="w-5 h-5 relative z-10 text-current transition-all duration-200" />
-                            )}
+                            {/* Show icon only when active to match reference closely */}
+                            {isActive && <Icon className="w-5 h-5 relative z-10 text-current transition-all duration-200" />}
                             <span className="relative z-10 transition-colors duration-200">
                                 {item.name}
                             </span>
