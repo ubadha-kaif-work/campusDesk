@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Building2, User, KeyRound } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
@@ -91,6 +92,13 @@ export default function LoginPage() {
 
                     </form>
                 </Card>
+
+                <p className="mt-8 text-center text-sm font-medium text-gray-500">
+                    Don't have an account?{' '}
+                    <Link href="/register" className="text-primary-600 hover:text-primary-700 hover:underline transition-colors">
+                        Create an Organization
+                    </Link>
+                </p>
             </div>
         </div>
     );
