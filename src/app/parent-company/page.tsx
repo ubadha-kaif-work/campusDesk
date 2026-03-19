@@ -45,7 +45,7 @@ export default function ParentCompanyDashboard() {
                     return (
                         <div key={i} className="flex flex-col items-center justify-center p-4 bg-surface rounded-[24px] cursor-pointer hover:bg-surface-container transition-colors shadow-sm">
                             <div className={`p-4 rounded-full mb-3 ${action.bg} ${action.color}`}>
-                                <Icon className="w-6 h-6" />
+                                <Icon className="w-6 h-6 text-current" />
                             </div>
                             <span className="font-medium text-sm text-foreground">{action.name}</span>
                         </div>

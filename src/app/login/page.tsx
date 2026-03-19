@@ -48,7 +48,7 @@ export default function LoginPage() {
                         <Input
                             label="Institution Code"
                             placeholder="e.g. SCHOOL-123"
-                            icon={<Building2 className="w-5 h-5" />}
+                            icon={<Building2 className="w-5 h-5 text-current" />}
                             value={institutionCode}
                             onChange={(e) => setInstitutionCode(e.target.value)}
                             required
@@ -57,7 +57,7 @@ export default function LoginPage() {
                         <Input
                             label="Username"
                             placeholder="Enter your username or email"
-                            icon={<User className="w-5 h-5" />}
+                            icon={<User className="w-5 h-5 text-current" />}
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             required
@@ -68,7 +68,7 @@ export default function LoginPage() {
                                 label="Password"
                                 type="password"
                                 placeholder="••••••••"
-                                icon={<KeyRound className="w-5 h-5" />}
+                                icon={<KeyRound className="w-5 h-5 text-current" />}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required

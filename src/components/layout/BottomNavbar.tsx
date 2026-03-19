@@ -10,9 +10,9 @@ export function BottomNavbar() {
     const router = useRouter();
 
     const navItems = [
-        { name: "Home", href: "/parent-company" },
-        { name: "Schools", href: "/parent-company/schools" },
-        { name: "Reports", href: "/parent-company/reports" },
+        { name: "Home", href: "/parent-company", icon: Home },
+        { name: "Schools", href: "/parent-company/schools", icon: School },
+        { name: "Reports", href: "/parent-company/reports", icon: PieChart },
     ];
 
     const handleSearchClick = () => {
@@ -20,25 +20,26 @@ export function BottomNavbar() {
     };
 
     const handleSearchDoubleClick = () => {
-        // Pass a query parameter to instruct the page to auto-focus.
-        // (The page component will read this or we just rely on standard autoFocus).
         router.push("/parent-company/search?focus=true");
     };
 
     return (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
             {/* Pronounced Frosted Glass Navbar */}
-            <div className="bg-surface/40 dark:bg-black/40 backdrop-blur-[24px] flex items-center p-2 rounded-full shadow-lg border border-black/5 dark:border-white/10">
+            <div className="bg-surface/40 dark:bg-black/40 backdrop-blur-[24px] flex items-center p-2 rounded-full shadow-lg border border-black/5 dark:border-white/10 text-foreground">
                 {navItems.map((item) => {
                     const isActive = item.href === "/parent-company"
                         ? pathname === item.href
                         : pathname.startsWith(item.href);
 
+                    const Icon = item.icon;
+
                     return (
                         <Link
                             key={item.href}
                             href={item.href}
-                            className="relative flex items-center justify-center px-5 py-2.5 rounded-full transition-colors font-medium text-sm"
+                            className={`relative flex items-center justify-center px-5 py-2.5 rounded-full transition-colors font-medium text-sm gap-2 ${isActive ? "text-primary-700 dark:text-primary-100" : "text-gray-700 dark:text-gray-300 hover:text-foreground"
+                                }`}
                             aria-label={item.name}
                         >
                             {isActive && (
@@ -48,8 +49,9 @@ export function BottomNavbar() {
                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                 />
                             )}
-                            <span className={`relative z-10 transition-colors duration-200 ${isActive ? "text-primary-700 dark:text-primary-100" : "text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white"
-                                }`}>
+                            {/* Added Icon back, forced it to inherit color with text-current */}
+                            <Icon className="w-5 h-5 relative z-10 text-current transition-colors" />
+                            <span className="relative z-10 transition-colors duration-200">
                                 {item.name}
                             </span>
                         </Link>
@@ -61,10 +63,10 @@ export function BottomNavbar() {
             <div
                 onClick={handleSearchClick}
                 onDoubleClick={handleSearchDoubleClick}
-                className="bg-surface/40 dark:bg-black/40 backdrop-blur-[24px] hover:bg-surface/70 p-4 rounded-full shadow-lg border border-black/5 dark:border-white/10 cursor-pointer transition-colors text-gray-800 dark:text-gray-200"
+                className="bg-surface/40 dark:bg-black/40 backdrop-blur-[24px] hover:bg-surface/70 p-4 rounded-full shadow-lg border border-black/5 dark:border-white/10 cursor-pointer transition-colors text-gray-800 dark:text-gray-200 hover:text-foreground"
                 title="Single click to open, double click to auto-focus"
             >
-                <Search className="w-5 h-5" />
+                <Search className="w-5 h-5 text-current" />
             </div>
         </div>
     );
