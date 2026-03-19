@@ -9,7 +9,6 @@ import { useRef } from "react";
 export function BottomNavbar() {
     const pathname = usePathname();
     const router = useRouter();
-    const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const navItems = [
         { name: "Home", href: "/parent-company", icon: Home },
@@ -18,20 +17,7 @@ export function BottomNavbar() {
     ];
 
     const handleSearchClick = () => {
-        // Clear any existing timeout precisely so we don't route twice
-        if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
-
-        // Delay single click processing by 250ms to check if a double click follows it
-        clickTimeoutRef.current = setTimeout(() => {
-            router.push("/parent-company/search");
-        }, 250);
-    };
-
-    const handleSearchDoubleClick = () => {
-        // It's a double click - cancel the single click timeout entirely
-        if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
-
-        // Route with focus parameter instantly
+        // Immediately route and trigger input focus on single click
         router.push("/parent-company/search?focus=true");
     };
 
@@ -71,12 +57,11 @@ export function BottomNavbar() {
                 })}
             </div>
 
-            {/* Search FAB with single/double click handling and strong Frosted Glass */}
+            {/* Search FAB with single click handling and strong Frosted Glass */}
             <div
                 onClick={handleSearchClick}
-                onDoubleClick={handleSearchDoubleClick}
                 className="bg-surface/40 dark:bg-black/40 backdrop-blur-[24px] hover:bg-surface/70 p-4 rounded-full shadow-lg border border-black/5 dark:border-white/10 cursor-pointer transition-colors text-gray-800 dark:text-gray-200 hover:text-foreground"
-                title="Single click to open, double click to auto-focus"
+                title="Click to search"
             >
                 <Search className="w-5 h-5 text-current" />
             </div>
