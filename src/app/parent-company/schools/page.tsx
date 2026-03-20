@@ -8,6 +8,8 @@ import { Plus, Edit2, MapPin, Landmark, X, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { db } from "@/lib/firebase/config";
 import { collection, getDocs, addDoc, updateDoc, doc } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 interface Institution {
     id: string;
@@ -18,8 +20,10 @@ interface Institution {
 }
 
 export default function InstitutionsPage() {
+    const router = useRouter();
     const [institutions, setInstitutions] = useState<Institution[]>([]);
     const [loading, setLoading] = useState(true);
+    const [currentUser, setCurrentUser] = useState<any>(null);
 
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -29,12 +33,21 @@ export default function InstitutionsPage() {
     });
 
     useEffect(() => {
-        fetchInstitutions();
-    }, []);
+        const auth = getAuth();
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setCurrentUser(user);
+                fetchInstitutions(user.uid);
+            } else {
+                router.push("/login");
+            }
+        });
+        return () => unsubscribe();
+    }, [router]);
 
-    const fetchInstitutions = async () => {
+    const fetchInstitutions = async (uid: string) => {
         try {
-            const querySnapshot = await getDocs(collection(db, "schools"));
+            const querySnapshot = await getDocs(collection(db, "companies", uid, "branches"));
             const data = querySnapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
@@ -65,14 +78,15 @@ export default function InstitutionsPage() {
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!currentUser) return;
         setIsSaving(true);
         try {
             if (editingId) {
-                const docRef = doc(db, "schools", editingId);
+                const docRef = doc(db, "companies", currentUser.uid, "branches", editingId);
                 await updateDoc(docRef, formData);
                 setInstitutions(institutions.map(s => s.id === editingId ? { ...formData, id: editingId } : s));
             } else {
-                const docRef = await addDoc(collection(db, "schools"), formData);
+                const docRef = await addDoc(collection(db, "companies", currentUser.uid, "branches"), formData);
                 setInstitutions([...institutions, { ...formData, id: docRef.id }]);
             }
             setIsFormOpen(false);
@@ -188,8 +202,8 @@ export default function InstitutionsPage() {
                                                 disabled={isSaving}
                                                 onClick={() => setFormData({ ...formData, type: type as any })}
                                                 className={`flex-1 py-1.5 px-4 rounded-full text-sm font-medium transition-all ${formData.type === type
-                                                        ? "bg-white dark:bg-black/40 text-primary-600 shadow-sm"
-                                                        : "text-gray-500 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5"
+                                                    ? "bg-white dark:bg-black/40 text-primary-600 shadow-sm"
+                                                    : "text-gray-500 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5"
                                                     }`}
                                             >
                                                 {type}

@@ -251,31 +251,25 @@ export default function ManagementPage() {
                 </div>
             </div>
 
-            {/* MD3 Ultra-Modern Dialog / Bottom-Sheet Hybrid */}
+            {/* MD3 Ultra-Modern Dialog / Centered Pop-up */}
             <AnimatePresence>
                 {isAddModalOpen && (
-                    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-4">
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            transition={{ duration: 0.3 }}
+                            transition={{ duration: 0.2 }}
                             className="absolute inset-0 bg-black/40 dark:bg-black/60"
                             onClick={() => !isSaving && setIsAddModalOpen(false)}
                         />
                         <motion.div
-                            initial={{ y: "100%" }}
-                            animate={{ y: 0 }}
-                            exit={{ y: "100%" }}
-                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                            className="relative w-full max-w-lg bg-background rounded-t-[32px] sm:rounded-[36px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative w-full max-w-lg bg-background rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
                         >
-                            {/* Mobile Pull-Tab Indicator */}
-                            <div className="w-full flex justify-center pt-3 pb-1 sm:hidden">
-                                <div className="w-12 h-1.5 bg-black/10 dark:bg-white/10 rounded-full" />
-                            </div>
-
-                            <div className="px-6 sm:px-8 pt-4 sm:pt-8 pb-2 flex justify-between items-center bg-background z-10">
+                            <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-2 flex justify-between items-center bg-background z-10">
                                 <div>
                                     <h2 className="text-[26px] font-normal tracking-tight text-foreground">Add Employee</h2>
                                     <p className="text-[14px] font-medium text-foreground/60 mt-0.5">Define new localized staff permissions.</p>

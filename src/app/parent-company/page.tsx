@@ -3,8 +3,33 @@
 import { Card } from "@/components/ui/Card";
 import { Building2, Users, GraduationCap, Activity, FileText, Send, Bell, Settings } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { db } from "@/lib/firebase/config";
+import { collection, getDocs } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 export default function ParentCompanyDashboard() {
+    const router = useRouter();
+    const [branchCount, setBranchCount] = useState<number | string>("...");
+
+    useEffect(() => {
+        const auth = getAuth();
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const snap = await getDocs(collection(db, "companies", user.uid, "branches"));
+                    setBranchCount(snap.size);
+                } catch (error) {
+                    console.error("Error fetching branch count:", error);
+                    setBranchCount(0);
+                }
+            } else {
+                router.push("/login");
+            }
+        });
+        return () => unsubscribe();
+    }, [router]);
     const quickActions = [
         { name: "New Report", icon: FileText, color: "text-primary-700 dark:text-primary-300", bg: "bg-primary-100 dark:bg-primary-900/30" },
         { name: "Send Notice", icon: Send, color: "text-primary-700 dark:text-primary-300", bg: "bg-primary-100 dark:bg-primary-900/30" },
@@ -13,7 +38,7 @@ export default function ParentCompanyDashboard() {
     ];
 
     const stats = [
-        { name: "Schools Managed", value: "24", icon: Building2 },
+        { name: "Schools Managed", value: branchCount, icon: Building2 },
         { name: "Total Students", value: "14,231", icon: Users },
         { name: "Active Staff", value: "842", icon: GraduationCap },
         { name: "Net Revenue", value: "$1.2M", icon: Activity },
