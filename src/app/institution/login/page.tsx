@@ -34,7 +34,7 @@ export default function InstitutionLogin() {
     };
 
     return (
-        <div className="min-h-[100dvh] bg-background flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="min-h-[100dvh] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
 
             {/* MD3 Abstract Decorative Background Ambient Lighting Layer */}
             <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-[800px] h-[800px] bg-primary-100/40 dark:bg-primary-900/10 rounded-full blur-3xl pointer-events-none" />

@@ -15,7 +15,7 @@ export function InstitutionNavbar() {
     const navItems = [
         { name: "Home", href: "/institution/dashboard", icon: Home },
         { name: "Management", href: "/institution/management", icon: Users },
-        { name: "Academics Report", href: "/institution/academics-report", icon: BookOpen },
+        { name: "Reports", href: "/institution/academics-report", icon: BookOpen },
     ];
 
     const handleSearchClick = () => {

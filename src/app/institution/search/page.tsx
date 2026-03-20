@@ -37,7 +37,7 @@ function LocalSearchContent() {
         : filteredResults;
 
     return (
-        <div className="min-h-[100dvh] bg-background flex flex-col pb-32">
+        <div className="min-h-[100dvh] flex flex-col pb-32">
             {/* Top Navigation Frame mirroring strict MD3 Heights */}
             <div className="sticky top-0 z-50 pt-2 pb-2 px-2 sm:px-4 sm:pt-4 bg-background/95 backdrop-blur-xl border-b border-black/5 dark:border-white/5 md:border-none">
                 <div className="max-w-6xl mx-auto flex flex-col gap-3">
@@ -73,8 +73,8 @@ function LocalSearchContent() {
                                 key={filter}
                                 onClick={() => setActiveFilter(filter)}
                                 className={`px-4 sm:px-5 py-2 rounded-xl text-[13px] sm:text-sm font-medium whitespace-nowrap transition-all border border-transparent shrink-0 ${activeFilter === filter
-                                        ? "bg-primary-100 text-primary-900 dark:bg-primary-900/60 dark:text-primary-100 border-primary-200 dark:border-primary-800 shadow-sm"
-                                        : "bg-surface-container text-foreground hover:bg-surface-container-highest border-black/5 dark:border-white/5"
+                                    ? "bg-primary-100 text-primary-900 dark:bg-primary-900/60 dark:text-primary-100 border-primary-200 dark:border-primary-800 shadow-sm"
+                                    : "bg-surface-container text-foreground hover:bg-surface-container-highest border-black/5 dark:border-white/5"
                                     }`}
                             >
                                 {filter}

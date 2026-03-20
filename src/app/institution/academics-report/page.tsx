@@ -8,7 +8,7 @@ export default function AcademicsReportPage() {
         <div className="space-y-8 pb-32">
             <div className="flex flex-col gap-1 mb-6 pt-4">
                 <h1 className="text-4xl font-normal tracking-tight text-foreground">
-                    Academics Report
+                    Reports
                 </h1>
                 <p className="text-gray-600 dark:text-gray-400 text-lg mt-2">
                     Review overarching gradebooks, attendance mappings, and class schedules natively.
