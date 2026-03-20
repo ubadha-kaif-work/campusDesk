@@ -264,18 +264,18 @@ export default function ManagementPage() {
                             onClick={() => !isSaving && setIsAddModalOpen(false)}
                         />
                         <motion.div
-                            initial={{ y: "100%", opacity: 0.5 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            exit={{ y: "100%", opacity: 0 }}
+                            initial={{ y: "100%" }}
+                            animate={{ y: 0 }}
+                            exit={{ y: "100%" }}
                             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                            className="relative w-full max-w-lg bg-surface-container-lowest dark:bg-surface-container rounded-t-[32px] sm:rounded-[36px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+                            className="relative w-full max-w-lg bg-background rounded-t-[32px] sm:rounded-[36px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
                         >
                             {/* Mobile Pull-Tab Indicator */}
                             <div className="w-full flex justify-center pt-3 pb-1 sm:hidden">
                                 <div className="w-12 h-1.5 bg-black/10 dark:bg-white/10 rounded-full" />
                             </div>
 
-                            <div className="px-6 sm:px-8 pt-4 sm:pt-8 pb-2 flex justify-between items-center bg-surface-container-lowest dark:bg-surface-container z-10">
+                            <div className="px-6 sm:px-8 pt-4 sm:pt-8 pb-2 flex justify-between items-center bg-background z-10">
                                 <div>
                                     <h2 className="text-[26px] font-normal tracking-tight text-foreground">Add Employee</h2>
                                     <p className="text-[14px] font-medium text-foreground/60 mt-0.5">Define new localized staff permissions.</p>
@@ -285,7 +285,7 @@ export default function ManagementPage() {
                                 </button>
                             </div>
 
-                            <form onSubmit={handleAddEmployee} className="px-6 sm:px-8 pb-8 pt-4 overflow-y-auto w-full no-scrollbar flex flex-col gap-5">
+                            <form onSubmit={handleAddEmployee} className="px-6 sm:px-8 pb-8 pt-4 overflow-y-auto w-full no-scrollbar flex flex-col gap-5 bg-background">
                                 <div className="flex flex-col gap-1.5 focus-within:gap-2 transition-all">
                                     <label className="text-[12px] font-bold uppercase tracking-widest text-primary-600 dark:text-primary-400 ml-1 opacity-80">Full Name</label>
                                     <input
