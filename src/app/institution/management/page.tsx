@@ -2,9 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Users, GraduationCap, ShieldAlert, Plus, X, Search, MoreVertical, BadgeCheck, Loader2 } from "lucide-react";
+import { Users, GraduationCap, ShieldAlert, Plus, X, Search, BadgeCheck, Loader2, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+
+// Firebase Integration
+import { db } from "@/lib/firebase/config";
+import { collection, query, getDocs, addDoc, deleteDoc, doc, Timestamp } from "firebase/firestore";
 
 interface Employee {
     id: string;
@@ -16,66 +20,110 @@ interface Employee {
 
 export default function ManagementPage() {
     const [branchName, setBranchName] = useState("");
+    const [branchId, setBranchId] = useState("");
 
-    // Using explicit React state as a rapid-prototype proxy before wiring the strict Firebase endpoints natively
-    const [employees, setEmployees] = useState<Employee[]>([
-        { id: "1", name: "Seymour Skinner", role: "LocalAdmin", code: "EMP-001", status: "Active" },
-        { id: "2", name: "Edna Krabappel", role: "Teacher", code: "EMP-042", status: "Active" },
-        { id: "3", name: "Groundskeeper Willie", role: "Inventory", code: "EMP-099", status: "Active" },
-    ]);
+    const [employees, setEmployees] = useState<Employee[]>([]);
+    const [isLoadingData, setIsLoadingData] = useState(true);
 
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
 
     // Form State
     const [isSaving, setIsSaving] = useState(false);
+    const [isDeleting, setIsDeleting] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         name: "",
         code: "",
         role: "Teacher"
     });
 
-    const availableRoles = [
-        "LocalAdmin", "Teacher", "Fee Manager", "Accountant", "Librarian", "Hostel Warden", "Inventory", "HR"
-    ];
+    // Helper function targeting the deeply nested branch users explicitly
+    const getUsersCollection = (bId: string) => {
+        // We use a mock DEV_COMPANY ID since login was bypassed.
+        return collection(db, "companies", "DEV_COMPANY", "branches", bId, "users");
+    };
+
+    const fetchEmployees = async (bId: string) => {
+        try {
+            const usersRef = getUsersCollection(bId);
+            const snapshot = await getDocs(query(usersRef));
+            const fetched = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            })) as Employee[];
+            setEmployees(fetched);
+        } catch (error) {
+            console.error("Error fetching employees:", error);
+        } finally {
+            setIsLoadingData(false);
+        }
+    };
 
     useEffect(() => {
         const name = localStorage.getItem("active_institution_name");
+        const bId = localStorage.getItem("active_institution_id");
         if (name) setBranchName(name);
+        if (bId) {
+            setBranchId(bId);
+            fetchEmployees(bId);
+        } else {
+            setIsLoadingData(false); // Failsafe if completely unauthenticated
+        }
     }, []);
 
     const handleAddEmployee = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsSaving(true);
+        if (!branchId) return;
 
-        // Simulating network delay for Firebase write
-        setTimeout(() => {
-            const newEmployee: Employee = {
-                id: Math.random().toString(36).substr(2, 9),
+        setIsSaving(true);
+        try {
+            const usersRef = getUsersCollection(branchId);
+            const newEmp = {
                 name: formData.name,
                 code: formData.code,
                 role: formData.role,
-                status: "Active"
+                status: "Active",
+                createdAt: Timestamp.now()
             };
+            const docRef = await addDoc(usersRef, newEmp);
 
-            setEmployees(prev => [newEmployee, ...prev]);
+            setEmployees(prev => [{ id: docRef.id, ...newEmp } as Employee, ...prev]);
             setFormData({ name: "", code: "", role: "Teacher" });
-            setIsSaving(false);
             setIsAddModalOpen(false);
-        }, 600);
+        } catch (error) {
+            console.error("Error adding employee:", error);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleDeleteEmployee = async (employeeId: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!branchId) return;
+
+        setIsDeleting(employeeId);
+        try {
+            const userDocRef = doc(db, "companies", "DEV_COMPANY", "branches", branchId, "users", employeeId);
+            await deleteDoc(userDocRef);
+            setEmployees(prev => prev.filter(emp => emp.id !== employeeId));
+        } catch (error) {
+            console.error("Error deleting employee:", error);
+        } finally {
+            setIsDeleting(null);
+        }
     };
 
     const getRoleColor = (role: string) => {
-        if (role === "LocalAdmin" || role === "HR") return "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400 border-purple-200 dark:border-purple-800";
-        if (role === "Fee Manager" || role === "Accountant") return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800";
-        if (role === "Teacher") return "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 border-blue-200 dark:border-blue-800";
+        if (role?.toLowerCase().includes("admin") || role?.toLowerCase().includes("hr")) return "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400 border-purple-200 dark:border-purple-800";
+        if (role?.toLowerCase().includes("fee") || role?.toLowerCase().includes("accountant")) return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800";
+        if (role?.toLowerCase().includes("teacher")) return "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 border-blue-200 dark:border-blue-800";
         return "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 border-amber-200 dark:border-amber-800";
     };
 
     const filteredEmployees = employees.filter(emp =>
-        emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        emp.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        emp.code.toLowerCase().includes(searchQuery.toLowerCase())
+        emp.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        emp.role?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        emp.code?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
@@ -104,8 +152,8 @@ export default function ManagementPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
                     { title: "Total Staff", count: employees.length, icon: Users, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/30" },
-                    { title: "Academic Faculty", count: employees.filter(e => e.role === "Teacher").length, icon: GraduationCap, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-100 dark:bg-emerald-900/30" },
-                    { title: "Local Admins", count: employees.filter(e => e.role === "LocalAdmin").length, icon: ShieldAlert, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-100 dark:bg-purple-900/30" }
+                    { title: "Academic Faculty", count: employees.filter(e => e.role?.toLowerCase() === "teacher").length, icon: GraduationCap, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-100 dark:bg-emerald-900/30" },
+                    { title: "Local Admins", count: employees.filter(e => e.role?.toLowerCase().includes("admin")).length, icon: ShieldAlert, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-100 dark:bg-purple-900/30" }
                 ].map((item, i) => (
                     <motion.div
                         key={item.title}
@@ -118,7 +166,11 @@ export default function ManagementPage() {
                             <item.icon className={`w-7 h-7 ${item.color}`} strokeWidth={1.5} />
                         </div>
                         <div>
-                            <h3 className="text-2xl font-normal tracking-tight text-foreground leading-none">{item.count}</h3>
+                            {isLoadingData ? (
+                                <Loader2 className="w-6 h-6 animate-spin text-foreground/40 mb-1" />
+                            ) : (
+                                <h3 className="text-2xl font-normal tracking-tight text-foreground leading-none">{item.count}</h3>
+                            )}
                             <p className="text-foreground/70 font-medium tracking-wide mt-1 text-[13px] uppercase">{item.title}</p>
                         </div>
                     </motion.div>
@@ -140,45 +192,57 @@ export default function ManagementPage() {
                     </div>
                 </div>
 
-                <div className="divide-y divide-black/5 dark:divide-white/5">
-                    <AnimatePresence mode="popLayout">
-                        {filteredEmployees.map((emp) => (
-                            <motion.div
-                                key={emp.id}
-                                layout
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                className="flex items-center justify-between p-4 sm:p-6 hover:bg-surface-container/50 transition-colors group"
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold text-lg border border-primary-200 dark:border-primary-800 shadow-sm shrink-0">
-                                        {emp.name.charAt(0)}
-                                    </div>
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <h3 className="text-[16px] font-medium text-foreground">{emp.name}</h3>
-                                            {emp.role === "LocalAdmin" && <BadgeCheck className="w-4 h-4 text-primary-500" />}
+                <div className="divide-y divide-black/5 dark:divide-white/5 min-h-[300px]">
+                    {isLoadingData ? (
+                        <div className="h-full w-full flex flex-col items-center justify-center p-20 opacity-50">
+                            <Loader2 className="w-10 h-10 animate-spin text-primary-600 mb-4" />
+                            <p className="font-medium tracking-wide">Syncing Firebase roles...</p>
+                        </div>
+                    ) : (
+                        <AnimatePresence mode="popLayout">
+                            {filteredEmployees.map((emp) => (
+                                <motion.div
+                                    key={emp.id}
+                                    layout
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    className="flex items-center justify-between p-4 sm:p-6 hover:bg-surface-container/50 transition-colors group"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold text-lg border border-primary-200 dark:border-primary-800 shadow-sm shrink-0">
+                                            {emp.name?.charAt(0) || "?"}
                                         </div>
-                                        <div className="flex items-center gap-2 mt-0.5">
-                                            <span className="text-[13px] font-medium text-foreground/50 font-mono tracking-wide">{emp.code}</span>
+                                        <div>
+                                            <div className="flex items-center gap-2">
+                                                <h3 className="text-[16px] font-medium text-foreground">{emp.name}</h3>
+                                                {emp.role?.toLowerCase().includes("admin") && <BadgeCheck className="w-4 h-4 text-primary-500" />}
+                                            </div>
+                                            <div className="flex items-center gap-2 mt-0.5">
+                                                <span className="text-[13px] font-medium text-foreground/50 font-mono tracking-wide">{emp.code}</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="flex items-center gap-4">
-                                    <span className={`hidden sm:inline-flex px-3 py-1 text-[11px] font-bold uppercase tracking-wider rounded-full border ${getRoleColor(emp.role)}`}>
-                                        {emp.role}
-                                    </span>
-                                    <button className="p-2 text-foreground/40 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors opacity-0 group-hover:opacity-100">
-                                        <MoreVertical className="w-5 h-5" />
-                                    </button>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
+                                    <div className="flex items-center gap-4">
+                                        <span className={`hidden sm:inline-flex px-3 py-1 text-[11px] font-bold uppercase tracking-wider rounded-full border ${getRoleColor(emp.role)}`}>
+                                            {emp.role}
+                                        </span>
+                                        <button
+                                            disabled={isDeleting === emp.id}
+                                            onClick={(e) => handleDeleteEmployee(emp.id, e)}
+                                            className="p-2.5 text-error-600/60 hover:text-error-600 hover:bg-error-50 dark:hover:bg-error-900/20 rounded-full transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                                            title="Revoke Role Access & Delete Employee"
+                                        >
+                                            {isDeleting === emp.id ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    )}
 
-                    {filteredEmployees.length === 0 && (
+                    {!isLoadingData && filteredEmployees.length === 0 && (
                         <div className="p-12 text-center flex flex-col items-center">
                             <Users className="w-12 h-12 text-foreground/20 mb-3" />
                             <p className="text-foreground/60 font-medium tracking-wide">No localized employees strictly match your search resolution.</p>
@@ -190,28 +254,36 @@ export default function ManagementPage() {
             {/* MD3 Massive Dialog specific to Role Assignment Operations */}
             <AnimatePresence>
                 {isAddModalOpen && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-0">
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                            className="absolute inset-0 bg-black/50 dark:bg-black/70"
                             onClick={() => !isSaving && setIsAddModalOpen(false)}
                         />
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-lg bg-surface-container-lowest dark:bg-surface-container rounded-[36px] shadow-2xl overflow-hidden"
+                            className="relative w-full max-w-lg sm:max-w-md bg-surface-container-high dark:bg-surface-container-highest rounded-[28px] shadow-xl overflow-hidden m-4"
                         >
-                            <div className="px-8 pt-8 pb-4 flex justify-between items-center sticky top-0 bg-surface-container-lowest dark:bg-surface-container z-10 border-b border-black/5 dark:border-white/5">
-                                <h2 className="text-[24px] font-normal tracking-tight text-foreground">Add Employee Role</h2>
-                                <button disabled={isSaving} onClick={() => setIsAddModalOpen(false)} className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-foreground/50 hover:text-foreground">
+                            <div className="px-6 pt-6 pb-4 flex justify-between items-center sm:hidden">
+                                <h2 className="text-[22px] font-normal tracking-tight text-foreground">Add Employee</h2>
+                                <button disabled={isSaving} onClick={() => setIsAddModalOpen(false)} className="p-2 -mr-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-foreground/70">
                                     <X className="w-6 h-6" />
                                 </button>
                             </div>
 
-                            <form onSubmit={handleAddEmployee} className="p-8 space-y-6">
+                            <form onSubmit={handleAddEmployee} className="px-6 pb-6 pt-2 sm:pt-6 space-y-5">
+                                <div className="hidden sm:flex justify-between items-center mb-6">
+                                    <div className="w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mb-4">
+                                        <Plus className="w-6 h-6 text-primary-700 dark:text-primary-300" strokeWidth={2} />
+                                    </div>
+                                </div>
+
+                                <h2 className="hidden sm:block text-[24px] font-normal tracking-tight text-foreground mb-6">Add Employee</h2>
+
                                 <div className="space-y-4">
                                     <Input
                                         label="Employee Name"
