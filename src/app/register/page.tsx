@@ -106,7 +106,7 @@ export default function RegisterWizard() {
     };
 
     return (
-        <div className="flex min-h-[100dvh] items-center justify-center p-4 sm:p-8 bg-surface-container-lowest dark:bg-background overflow-hidden">
+        <div className="flex min-h-[100dvh] items-center justify-center p-4 sm:py-12 sm:px-8 bg-surface-container-lowest dark:bg-background overflow-y-auto">
             <div className="w-full max-w-2xl bg-white dark:bg-surface border border-black/5 dark:border-white/5 shadow-2xl rounded-[36px] sm:rounded-[48px] relative min-h-[500px] flex flex-col">
 
                 {/* Global Wizard Top-Bar tracking Step Logic */}
@@ -138,7 +138,7 @@ export default function RegisterWizard() {
                                 animate="center"
                                 exit="exit"
                                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                className="absolute inset-0 px-8 sm:px-16 flex flex-col justify-center items-center text-center pb-20"
+                                className="flex-1 w-full px-6 sm:px-16 flex flex-col justify-center items-center text-center pb-12 sm:pb-20"
                             >
                                 <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mb-8 border-[6px] border-white dark:border-surface shadow-xl">
                                     <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 text-primary-600 dark:text-primary-400" />
@@ -169,7 +169,7 @@ export default function RegisterWizard() {
                                 animate="center"
                                 exit="exit"
                                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                className="absolute inset-0 px-8 sm:px-16 flex flex-col overflow-y-auto no-scrollbar pb-24"
+                                className="flex-1 w-full px-6 sm:px-16 flex flex-col pb-12 sm:pb-20"
                             >
                                 <div className="mb-8">
                                     <h2 className="text-3xl font-medium tracking-tight text-foreground">Select your SaaS Modules</h2>
@@ -256,7 +256,7 @@ export default function RegisterWizard() {
                                 animate="center"
                                 exit="exit"
                                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                className="absolute inset-0 px-8 sm:px-16 flex flex-col pb-24 overflow-y-auto no-scrollbar"
+                                className="flex-1 w-full px-6 sm:px-16 flex flex-col pb-12 sm:pb-20"
                             >
                                 <div className="mb-8">
                                     <h2 className="text-3xl font-medium tracking-tight text-foreground">Transparent Billing</h2>
