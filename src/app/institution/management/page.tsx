@@ -127,7 +127,7 @@ export default function ManagementPage() {
     );
 
     return (
-        <div className="space-y-6 pb-32 max-w-6xl mx-auto px-4">
+        <div className="space-y-8 pb-32 max-w-6xl mx-auto px-4 sm:px-6 pt-6 w-full">
 
             {/* Header Structure */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 pt-6">

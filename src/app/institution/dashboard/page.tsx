@@ -29,7 +29,7 @@ export default function InstitutionDashboard() {
     ];
 
     return (
-        <div className="space-y-8 pb-32 max-w-5xl mx-auto px-4 pt-6">
+        <div className="space-y-8 pb-32 max-w-6xl mx-auto px-4 sm:px-6 pt-6 w-full">
             {/* Header - MD3 Large Display Typography mapping cached identities natively */}
             <motion.div
                 initial={{ opacity: 0, y: -10 }}

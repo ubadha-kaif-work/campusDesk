@@ -40,7 +40,7 @@ function LocalSearchContent() {
         <div className="min-h-[100dvh] flex flex-col pb-32">
             {/* Top Navigation Frame mirroring strict MD3 Heights */}
             <div className="sticky top-0 z-50 pt-2 pb-2 px-2 sm:px-4 sm:pt-4 bg-background/95 backdrop-blur-xl border-b border-black/5 dark:border-white/5 md:border-none">
-                <div className="max-w-6xl mx-auto flex flex-col gap-3">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 w-full flex flex-col gap-3">
                     <div className="flex items-center bg-transparent w-full h-14 rounded-full transition-all focus-within:shadow-md px-1 sm:px-2 border border-black/10 dark:border-white/10 focus-within:border-black/20 dark:focus-within:border-white/20">
                         <button onClick={() => router.back()} className="p-2 sm:p-3 rounded-full text-foreground/70 hover:bg-black/5 dark:hover:bg-white/10 transition-colors shrink-0">
                             <ArrowLeft className="w-6 h-6" />
@@ -84,7 +84,7 @@ function LocalSearchContent() {
                 </div>
             </div>
 
-            <div className="flex-1 max-w-6xl mx-auto w-full px-2 sm:px-4 pt-4 sm:pt-6">
+            <div className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 pt-4 sm:pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
                     <AnimatePresence mode="popLayout">
                         {finalResults.map((result, i) => {

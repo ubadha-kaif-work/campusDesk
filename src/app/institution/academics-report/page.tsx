@@ -5,7 +5,7 @@ import { BookOpen, FileText, CheckCircle } from "lucide-react";
 
 export default function AcademicsReportPage() {
     return (
-        <div className="space-y-8 pb-32">
+        <div className="space-y-8 pb-32 max-w-6xl mx-auto px-4 sm:px-6 pt-6 w-full">
             <div className="flex flex-col gap-1 mb-6 pt-4">
                 <h1 className="text-4xl font-normal tracking-tight text-foreground">
                     Reports
