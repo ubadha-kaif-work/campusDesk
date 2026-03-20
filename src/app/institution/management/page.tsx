@@ -251,83 +251,93 @@ export default function ManagementPage() {
                 </div>
             </div>
 
-            {/* MD3 Massive Dialog specific to Role Assignment Operations */}
+            {/* MD3 Ultra-Modern Dialog / Bottom-Sheet Hybrid */}
             <AnimatePresence>
                 {isAddModalOpen && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-0">
+                    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-4">
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/50 dark:bg-black/70"
+                            transition={{ duration: 0.3 }}
+                            className="absolute inset-0 bg-black/40 dark:bg-black/60"
                             onClick={() => !isSaving && setIsAddModalOpen(false)}
                         />
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-lg sm:max-w-md bg-surface-container-high dark:bg-surface-container-highest rounded-[28px] shadow-xl overflow-hidden m-4"
+                            initial={{ y: "100%", opacity: 0.5 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: "100%", opacity: 0 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                            className="relative w-full max-w-lg bg-surface-container-lowest dark:bg-surface-container rounded-t-[32px] sm:rounded-[36px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
                         >
-                            <div className="px-6 pt-6 pb-4 flex justify-between items-center sm:hidden">
-                                <h2 className="text-[22px] font-normal tracking-tight text-foreground">Add Employee</h2>
-                                <button disabled={isSaving} onClick={() => setIsAddModalOpen(false)} className="p-2 -mr-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-foreground/70">
+                            {/* Mobile Pull-Tab Indicator */}
+                            <div className="w-full flex justify-center pt-3 pb-1 sm:hidden">
+                                <div className="w-12 h-1.5 bg-black/10 dark:bg-white/10 rounded-full" />
+                            </div>
+
+                            <div className="px-6 sm:px-8 pt-4 sm:pt-8 pb-2 flex justify-between items-center bg-surface-container-lowest dark:bg-surface-container z-10">
+                                <div>
+                                    <h2 className="text-[26px] font-normal tracking-tight text-foreground">Add Employee</h2>
+                                    <p className="text-[14px] font-medium text-foreground/60 mt-0.5">Define new localized staff permissions.</p>
+                                </div>
+                                <button disabled={isSaving} onClick={() => setIsAddModalOpen(false)} className="hidden sm:flex p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-foreground/50 hover:text-foreground">
                                     <X className="w-6 h-6" />
                                 </button>
                             </div>
 
-                            <form onSubmit={handleAddEmployee} className="px-6 pb-6 pt-2 sm:pt-6 space-y-5">
-                                <div className="hidden sm:flex justify-between items-center mb-6">
-                                    <div className="w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mb-4">
-                                        <Plus className="w-6 h-6 text-primary-700 dark:text-primary-300" strokeWidth={2} />
-                                    </div>
-                                </div>
-
-                                <h2 className="hidden sm:block text-[24px] font-normal tracking-tight text-foreground mb-6">Add Employee</h2>
-
-                                <div className="space-y-4">
-                                    <Input
-                                        label="Employee Name"
+                            <form onSubmit={handleAddEmployee} className="px-6 sm:px-8 pb-8 pt-4 overflow-y-auto w-full no-scrollbar flex flex-col gap-5">
+                                <div className="flex flex-col gap-1.5 focus-within:gap-2 transition-all">
+                                    <label className="text-[12px] font-bold uppercase tracking-widest text-primary-600 dark:text-primary-400 ml-1 opacity-80">Full Name</label>
+                                    <input
                                         required
                                         disabled={isSaving}
-                                        placeholder="Full legal name"
+                                        placeholder="e.g. Seymour Skinner"
+                                        className="w-full h-14 bg-surface-container-highest dark:bg-surface-container-high rounded-2xl px-4 text-[16px] text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary-500/50 border border-transparent transition-all"
                                         value={formData.name}
                                         onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     />
-                                    <Input
-                                        label="System Employee Code"
+                                </div>
+
+                                <div className="flex flex-col gap-1.5 focus-within:gap-2 transition-all">
+                                    <label className="text-[12px] font-bold uppercase tracking-widest text-primary-600 dark:text-primary-400 ml-1 opacity-80">System Code</label>
+                                    <input
                                         required
                                         disabled={isSaving}
                                         placeholder="e.g. EMP-105"
+                                        className="w-full h-14 bg-surface-container-highest dark:bg-surface-container-high rounded-2xl px-4 text-[16px] text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary-500/50 border border-transparent transition-all font-mono"
                                         value={formData.code}
                                         onChange={e => setFormData({ ...formData, code: e.target.value })}
                                     />
+                                </div>
 
-                                    <Input
-                                        label="Assigned RBAC Role"
+                                <div className="flex flex-col gap-1.5 focus-within:gap-2 transition-all">
+                                    <label className="text-[12px] font-bold uppercase tracking-widest text-primary-600 dark:text-primary-400 ml-1 opacity-80">Role Tag Array</label>
+                                    <input
                                         required
                                         disabled={isSaving}
-                                        placeholder="e.g. Accountant, Librarian"
+                                        placeholder="e.g. Fee Manager"
+                                        className="w-full h-14 bg-surface-container-highest dark:bg-surface-container-high rounded-2xl px-4 text-[16px] text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary-500/50 border border-transparent transition-all"
                                         value={formData.role}
                                         onChange={e => setFormData({ ...formData, role: e.target.value })}
                                     />
                                 </div>
 
-                                <div className="pt-4 mt-6 flex justify-end items-center gap-2">
+                                <div className="pt-6 mt-2 flex justify-between items-center gap-4">
                                     <button
                                         type="button"
                                         disabled={isSaving}
                                         onClick={() => setIsAddModalOpen(false)}
-                                        className="px-6 py-2.5 rounded-full text-[15px] font-medium text-primary-700 dark:text-primary-300 hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                                        className="w-1/3 py-3.5 rounded-full text-[15px] font-bold tracking-wide text-foreground/70 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                                     >
                                         Cancel
                                     </button>
-                                    <Button
+                                    <button
                                         type="submit"
-                                        isLoading={isSaving}
-                                        className="px-8 py-2.5 rounded-full text-[15px] font-medium shadow-sm"
+                                        disabled={isSaving}
+                                        className="flex-1 py-3.5 bg-primary text-on-primary rounded-full text-[15px] font-bold tracking-wide shadow-sm hover:shadow-md transition-all flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
                                     >
-                                        Save Employee
-                                    </Button>
+                                        {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : "Authorize Employee"}
+                                    </button>
                                 </div>
                             </form>
                         </motion.div>
