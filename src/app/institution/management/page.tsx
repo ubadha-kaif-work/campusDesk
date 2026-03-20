@@ -230,33 +230,31 @@ export default function ManagementPage() {
                                         onChange={e => setFormData({ ...formData, code: e.target.value })}
                                     />
 
-                                    <div className="space-y-2">
-                                        <label className="text-[12px] font-bold uppercase tracking-wider text-foreground/50 ml-2">Assigned RBAC Role</label>
-                                        <div className="flex flex-wrap gap-2">
-                                            {availableRoles.map((role) => (
-                                                <button
-                                                    key={role}
-                                                    type="button"
-                                                    disabled={isSaving}
-                                                    onClick={() => setFormData({ ...formData, role: role })}
-                                                    className={`px-4 py-2 rounded-xl text-[13px] font-bold tracking-wide transition-all border ${formData.role === role
-                                                            ? `${getRoleColor(role)} shadow-sm`
-                                                            : "bg-surface-container text-foreground/70 hover:text-foreground border-transparent hover:border-black/10 dark:hover:border-white/10"
-                                                        }`}
-                                                >
-                                                    {role}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
+                                    <Input
+                                        label="Assigned RBAC Role"
+                                        required
+                                        disabled={isSaving}
+                                        placeholder="e.g. Accountant, Librarian"
+                                        value={formData.role}
+                                        onChange={e => setFormData({ ...formData, role: e.target.value })}
+                                    />
                                 </div>
 
-                                <div className="pt-6 mt-2 border-t border-black/5 dark:border-white/5 flex flex-col gap-3">
-                                    <Button type="submit" isLoading={isSaving} className="w-full h-14 rounded-full text-[16px] font-bold tracking-wide">
-                                        Assign Employee Roles
-                                    </Button>
-                                    <Button type="button" variant="secondary" disabled={isSaving} onClick={() => setIsAddModalOpen(false)} className="w-full bg-transparent hover:bg-black/5 text-foreground/70 h-14 rounded-full font-bold">
-                                        Cancel Protocol
+                                <div className="pt-4 mt-6 flex justify-end items-center gap-2">
+                                    <button
+                                        type="button"
+                                        disabled={isSaving}
+                                        onClick={() => setIsAddModalOpen(false)}
+                                        className="px-6 py-2.5 rounded-full text-[15px] font-medium text-primary-700 dark:text-primary-300 hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <Button
+                                        type="submit"
+                                        isLoading={isSaving}
+                                        className="px-8 py-2.5 rounded-full text-[15px] font-medium shadow-sm"
+                                    >
+                                        Save Employee
                                     </Button>
                                 </div>
                             </form>

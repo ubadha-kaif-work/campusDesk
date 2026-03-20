@@ -2,12 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Landmark, ArrowRight, Building, Building2, KeyRound } from "lucide-react";
+import { ArrowRight, Building2, ShieldCheck, Lock } from "lucide-react";
 import { motion } from "framer-motion";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
-import { db } from "@/lib/firebase/config";
-import { collection, query, where, getDocs } from "firebase/firestore";
 
 export default function InstitutionLogin() {
     const router = useRouter();
@@ -22,103 +18,129 @@ export default function InstitutionLogin() {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        // --- DEVELOPMENT BYPASS ENABLED ---
-        // Temporarily skipping Firebase queries to allow rapid development of the Institution module
         setIsLoading(true);
         setTimeout(() => {
             localStorage.setItem("active_institution_id", "dev_branch_001");
             localStorage.setItem("active_institution_name", formData.institutionName || "Development Branch");
             router.push("/institution/dashboard");
-        }, 300); // Small artificial delay for UI transition smoothness
+        }, 400);
     };
 
     return (
-        <div className="min-h-[100dvh] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="min-h-[100dvh] bg-surface flex flex-col md:flex-row">
 
-            {/* MD3 Abstract Decorative Background Ambient Lighting Layer */}
-            <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-[800px] h-[800px] bg-primary-100/40 dark:bg-primary-900/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 w-[600px] h-[600px] bg-secondary-100/40 dark:bg-secondary-900/10 rounded-full blur-3xl pointer-events-none" />
+            {/* Left Minimalist Branding Panel */}
+            <div className="flex-1 bg-surface-container-lowest hidden md:flex flex-col justify-between p-12 border-r border-black/5 dark:border-white/5 relative overflow-hidden">
+                <div className="relative z-10 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                        <Building2 className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+                    </div>
+                    <span className="text-xl font-medium tracking-tight text-foreground">campusDesk</span>
+                </div>
 
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: [0.2, 0, 0, 1] }}
-                className="w-full max-w-md mx-auto relative z-10"
-            >
-                {/* Massive MD3 Elevated Container Form Base */}
-                <div className="bg-surface-container-lowest dark:bg-surface-container rounded-[36px] shadow-lg border border-black/5 dark:border-white/5 overflow-hidden">
-                    <div className="px-8 pt-10 pb-8 flex flex-col items-center text-center">
-                        <div className="w-20 h-20 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mb-6">
-                            <Landmark className="w-10 h-10 text-primary-700 dark:text-primary-300" strokeWidth={1.5} />
+                <div className="relative z-10 max-w-lg">
+                    <h1 className="text-5xl font-normal tracking-tight text-foreground leading-[1.1]">
+                        Streamline your branch operations.
+                    </h1>
+                    <p className="mt-6 text-lg text-foreground/60 leading-relaxed font-medium">
+                        Securely authenticate into your localized institution portal to access Role-Based staff management, academic tracking, and real-time attendance streams.
+                    </p>
+                </div>
+
+                <div className="relative z-10 flex items-center gap-2 text-foreground/40 font-medium text-sm">
+                    <ShieldCheck className="w-4 h-4" /> Enterprise Grade RBAC Security
+                </div>
+
+                {/* Massive Watermark Icon */}
+                <Building2 className="absolute -bottom-24 -left-24 w-[500px] h-[500px] text-black/[0.02] dark:text-white/[0.02] pointer-events-none" />
+            </div>
+
+            {/* Right Form Panel */}
+            <div className="flex-1 flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-24 xl:px-32 bg-surface">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, ease: [0.2, 0, 0, 1] }}
+                    className="w-full max-w-md mx-auto"
+                >
+                    <div className="md:hidden flex items-center gap-3 mb-10">
+                        <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center">
+                            <Building2 className="w-5 h-5 text-primary-600" />
                         </div>
-                        <h2 className="mt-2 text-[28px] font-normal tracking-tight text-foreground">
-                            Institution Portal
-                        </h2>
-                        <p className="mt-2 text-[15px] font-medium text-foreground/60 tracking-wide leading-snug">
-                            Secure local access ensuring structural isolation for branch operations.
-                        </p>
+                        <span className="text-xl font-medium tracking-tight text-foreground">campusDesk</span>
                     </div>
 
-                    <form className="px-8 pb-10 space-y-6" onSubmit={handleLogin}>
+                    <h2 className="text-3xl font-normal tracking-tight text-foreground mb-2">
+                        Branch Login
+                    </h2>
+                    <p className="text-foreground/60 text-[15px] font-medium tracking-wide mb-10">
+                        Enter your secure organizational credentials.
+                    </p>
+
+                    <form className="space-y-6" onSubmit={handleLogin}>
                         {error && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
-                                className="p-4 bg-error-100 dark:bg-error-900/30 text-error-700 dark:text-error-300 rounded-[20px] text-sm font-medium tracking-wide text-center"
-                            >
+                            <div className="p-4 bg-error-50 dark:bg-error-900/20 text-error-600 dark:text-error-400 rounded-xl text-sm font-medium">
                                 {error}
-                            </motion.div>
+                            </div>
                         )}
-                        <div className="space-y-4">
-                            <div className="space-y-1">
-                                <label className="text-[12px] font-bold uppercase tracking-wider text-foreground/50 ml-2">Parent Organization</label>
-                                <Input
+
+                        <div className="space-y-5">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-foreground ml-1">Parent Organization</label>
+                                <input
                                     required
-                                    placeholder="e.g. Springfield Ed Group"
-                                    icon={<Building className="w-5 h-5 text-current" />}
+                                    placeholder="e.g. Springfield Education"
+                                    className="w-full h-14 bg-surface-container-highest dark:bg-surface-container rounded-2xl px-4 text-[16px] text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary-500/50 border border-transparent transition-all"
                                     value={formData.parentCompany}
                                     onChange={(e) => setFormData({ ...formData, parentCompany: e.target.value })}
                                 />
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-[12px] font-bold uppercase tracking-wider text-foreground/50 ml-2">Local Branch Profile</label>
-                                <Input
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-foreground ml-1">Branch Name</label>
+                                <input
                                     required
-                                    placeholder="e.g. Springfield High School"
-                                    icon={<Building2 className="w-5 h-5 text-current" />}
+                                    placeholder="e.g. Springfield High"
+                                    className="w-full h-14 bg-surface-container-highest dark:bg-surface-container rounded-2xl px-4 text-[16px] text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary-500/50 border border-transparent transition-all"
                                     value={formData.institutionName}
                                     onChange={(e) => setFormData({ ...formData, institutionName: e.target.value })}
                                 />
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-[12px] font-bold uppercase tracking-wider text-foreground/50 ml-2">Secure System Token</label>
-                                <Input
-                                    required
-                                    type="password"
-                                    placeholder="Branch authentication code"
-                                    icon={<KeyRound className="w-5 h-5 text-current" />}
-                                    value={formData.systemCode}
-                                    onChange={(e) => setFormData({ ...formData, systemCode: e.target.value })}
-                                />
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-foreground ml-1 flex justify-between">
+                                    <span>System Code</span>
+                                </label>
+                                <div className="relative">
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40" />
+                                    <input
+                                        required
+                                        type="password"
+                                        placeholder="Enter your security token"
+                                        className="w-full h-14 bg-surface-container-highest dark:bg-surface-container rounded-2xl pl-11 pr-4 text-[16px] text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary-500/50 border border-transparent transition-all"
+                                        value={formData.systemCode}
+                                        onChange={(e) => setFormData({ ...formData, systemCode: e.target.value })}
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <Button
+                        <button
                             type="submit"
-                            isLoading={isLoading}
-                            className="w-full h-14 rounded-full text-[17px] font-medium tracking-wide shadow-sm"
+                            disabled={isLoading}
+                            className="w-full h-14 bg-primary text-on-primary rounded-full text-[16px] font-medium tracking-wide shadow-sm hover:shadow-md transition-all flex items-center justify-center mt-8 disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                            {!isLoading && (
+                            {isLoading ? (
+                                <span className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                            ) : (
                                 <>
-                                    Verify Local Access
-                                    <ArrowRight className="w-5 h-5 ml-2 transition-transform" />
+                                    Log In to Branch <ArrowRight className="w-5 h-5 ml-2" />
                                 </>
                             )}
-                        </Button>
+                        </button>
                     </form>
-                </div>
-            </motion.div>
+                </motion.div>
+            </div>
         </div>
     );
 }

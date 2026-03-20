@@ -41,7 +41,7 @@ function LocalSearchContent() {
             {/* Top Navigation Frame mirroring strict MD3 Heights */}
             <div className="sticky top-0 z-50 pt-2 pb-2 px-2 sm:px-4 sm:pt-4 bg-background/95 backdrop-blur-xl border-b border-black/5 dark:border-white/5 md:border-none">
                 <div className="max-w-6xl mx-auto flex flex-col gap-3">
-                    <div className="flex items-center bg-surface-container-highest md:bg-surface-container w-full h-14 rounded-full transition-all focus-within:shadow-md focus-within:bg-surface-container-highest px-1 sm:px-2 border border-transparent focus-within:border-black/5 dark:focus-within:border-white/5">
+                    <div className="flex items-center bg-transparent w-full h-14 rounded-full transition-all focus-within:shadow-md px-1 sm:px-2 border border-black/10 dark:border-white/10 focus-within:border-black/20 dark:focus-within:border-white/20">
                         <button onClick={() => router.back()} className="p-2 sm:p-3 rounded-full text-foreground/70 hover:bg-black/5 dark:hover:bg-white/10 transition-colors shrink-0">
                             <ArrowLeft className="w-6 h-6" />
                         </button>
@@ -72,9 +72,9 @@ function LocalSearchContent() {
                             <button
                                 key={filter}
                                 onClick={() => setActiveFilter(filter)}
-                                className={`px-4 sm:px-5 py-2 rounded-xl text-[13px] sm:text-sm font-medium whitespace-nowrap transition-all border border-transparent shrink-0 ${activeFilter === filter
+                                className={`px-4 sm:px-5 py-2 rounded-xl text-[13px] sm:text-sm font-medium whitespace-nowrap transition-all border shrink-0 ${activeFilter === filter
                                     ? "bg-primary-100 text-primary-900 dark:bg-primary-900/60 dark:text-primary-100 border-primary-200 dark:border-primary-800 shadow-sm"
-                                    : "bg-surface-container text-foreground hover:bg-surface-container-highest border-black/5 dark:border-white/5"
+                                    : "bg-transparent text-foreground hover:bg-black/5 dark:hover:bg-white/5 border-black/10 dark:border-white/10"
                                     }`}
                             >
                                 {filter}
